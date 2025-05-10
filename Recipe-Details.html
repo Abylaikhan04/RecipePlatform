@@ -1,0 +1,1946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Details - Tátti-Dám</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #F9FAFB;
+            color: #1F2937;
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(45deg, #FD5719, #FF8C42);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Recipe Card */
+        .recipe-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .recipe-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Search Bar */
+        .search-bar:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3);
+        }
+
+        /* Tab Buttons */
+        .tab-btn.active {
+            background-color: #FD5719;
+            color: white;
+        }
+
+        /* Dropzone */
+        .dropzone {
+            transition: all 0.3s ease;
+        }
+        .dropzone.active {
+            border-color: #FD5719;
+            background-color: #FEF2F2;
+        }
+
+        /* Modal and Panel Transitions */
+        .modal, .notification-panel, .message-panel, .modal-overlay, .notification-overlay, .message-overlay {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+        .modal-content, .notification-panel, .message-panel {
+            transition: transform 0.3s ease;
+            transform: translateY(20px);
+        }
+        .modal.active, .notification-panel.active, .message-panel.active,
+        .modal-overlay.active, .notification-overlay.active, .message-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal.active .modal-content, 
+        .notification-panel.active, 
+        .message-panel.active {
+            transform: translateY(0);
+        }
+
+        /* Toast Notification */
+        .toast {
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Saved Icon */
+        .saved {
+            color: #FD5719 !important;
+        }
+
+        /* Animation for Recipe Image */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .recipe-image {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #FD5719;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(253, 87, 25, 0.3);
+            z-index: 20;
+            transition: all 0.3s ease;
+        }
+        .fab:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(253, 87, 25, 0.4);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FD5719;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #E04B14;
+        }
+
+        /* Pulse Animation for Save Button */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .pulse {
+            animation: pulse 0.5s ease;
+        }
+
+        /* Rating Stars */
+        .rating-stars {
+            display: flex;
+            gap: 4px;
+            cursor: pointer;
+        }
+        .rating-stars i {
+            color: #e4e5e9;
+            transition: color 0.2s ease;
+        }
+        .rating-stars i.filled {
+            color: #FD5719;
+        }
+        .rating-stars i:hover,
+        .rating-stars i:hover ~ i {
+            color: #FF8C42;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: 0;
+            background: #FD5719;
+            color: #FFF;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* Profile Tabs */
+        .nav-tab {
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #FD5719;
+        }
+
+        /* Overlays */
+        .modal-overlay, .notification-overlay, .message-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+        }
+
+        /* Notification Panel */
+        .notification-panel {
+            position: fixed;
+            top: 10%;
+            left: 39%;
+            width: 400px;
+            max-width: 90%;
+            max-height: 80vh;
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            z-index: 999;
+            overflow-y: auto;
+        }
+        .notification-panel h1 {
+            color: #1F2937;
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+        .notification-item:hover {
+            background: #F9FAFB;
+        }
+        .notification-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .notification-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .notification-text {
+            color: #1F2937;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+        .notification-comment {
+            color: #6B7280;
+            font-size: 0.75rem;
+        }
+        .notification-time {
+            color: #6B7280;
+            font-size: 0.75rem;
+        }
+        .notification-image {
+            width: 60px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .notification-options-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: #6B7280;
+            font-size: 1rem;
+        }
+        .notification-options-menu {
+            position: absolute;
+            right: 12px;
+            top: 32px;
+            background: #FFF;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 8px 0;
+            z-index: 10;
+            display: none;
+        }
+        .notification-options-menu button {
+            display: block;
+            width: 100%;
+            padding: 6px 12px;
+            background: none;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: #1F2937;
+        }
+        .notification-options-menu button:hover {
+            background: #F9FAFB;
+        }
+        .notification-options-menu button.remove {
+            color: #FD5719;
+        }
+        .notification-options-menu button.remove:hover {
+            background: #FEF2F2;
+        }
+        .section-title {
+            color: #1F2937;
+            font-size: 1.125rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        /* Message Panel */
+        .message-panel {
+            position: fixed;
+            top: 10%;
+            left: 23%;
+            width: 80%;
+            max-width: 1000px;
+            height: 80vh;
+            background: white;
+            border-radius: 12px;
+            z-index: 999;
+            overflow: hidden;
+        }
+        .message-container {
+            display: flex;
+            height: 100%;
+        }
+        .message-sidebar {
+            width: 300px;
+            background: #FFF;
+            border-right: 1px solid #E5E7EB;
+            overflow-y: auto;
+        }
+        .message-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #F9FAFB;
+        }
+        .message-search {
+            padding: 16px;
+            background: #FFF;
+        }
+        .message-search input {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+            font-size: 0.875rem;
+        }
+        .message-list {
+            padding: 8px;
+        }
+        .message-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #FFF;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .message-item:hover {
+            background: #F9FAFB;
+        }
+        .message-item.active {
+            background: #FEF2F2;
+        }
+        .message-item.active:hover {
+            background: #FEF2F2;
+        }
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 12px;
+            background-size: cover;
+            background-position: center;
+        }
+        .message-info {
+            flex: 1;
+        }
+        .message-name {
+            font-weight: 600;
+            color: #1F2937;
+            font-size: 0.875rem;
+        }
+        .message-preview {
+            color: #6B7280;
+            font-size: 0.75rem;
+        }
+        .message-meta {
+            text-align: right;
+        }
+        .message-time {
+            color: #6B7280;
+            font-size: 0.75rem;
+        }
+        .message-unread {
+            background: #FD5719;
+            color: #FFF;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+        .message-header {
+            padding: 16px;
+            background: #FFF;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        .message-user-info {
+            display: flex;
+            align-items: center;
+        }
+        .message-user-name {
+            font-weight: 600;
+            color: #1F2937;
+            margin-left: 12px;
+            font-size: 1rem;
+        }
+        .message-chat {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .no-chat-selected {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: #6B7280;
+        }
+        .message-bubble {
+            max-width: 70%;
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            position: relative;
+            font-size: 0.875rem;
+        }
+        .own-message {
+            align-self: flex-end;
+            background: #FD5719;
+            color: #FFF;
+            border-bottom-right-radius: 4px;
+        }
+        .other-message {
+            align-self: flex-start;
+            background: #FFF;
+            color: #1F2937;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .message-text {
+            word-wrap: break-word;
+        }
+        .message-media {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .message-timestamp {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 4px;
+            text-align: right;
+        }
+        .message-input {
+            padding: 12px;
+            background: #FFF;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid #E5E7EB;
+        }
+        .message-input input {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+            margin-right: 8px;
+            font-size: 0.875rem;
+        }
+        .message-send-btn {
+            padding: 8px 16px;
+            background: #FD5719;
+            color: #FFF;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        .message-send-btn:disabled {
+            background: #D1D5DB;
+            cursor: not-allowed;
+        }
+        .message-media-btn {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            margin-right: 8px;
+            color: #6B7280;
+        }
+
+        /* Enhanced Create Recipe Modal */
+        .create-recipe-modal {
+            max-height: 90vh;
+            overflow-y: auto;
+            width: 90%;
+            max-width: 800px;
+        }
+        .ingredient-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .ingredient-input {
+            flex: 1;
+            margin-right: 8px;
+        }
+        .remove-ingredient {
+            color: #FD5719;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        .add-ingredient {
+            color: #FD5719;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-top: 8px;
+        }
+        .modal-footer {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding-top: 16px;
+            padding-bottom: 16px;
+        }
+
+        /* Filter Ingredient Item */
+        .filter-ingredient-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .filter-ingredient-input {
+            flex: 1;
+            margin-right: 8px;
+        }
+        .remove-filter-ingredient {
+            color: #FD5719;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        .add-filter-ingredient {
+            color: #FD5719;
+            cursor: pointer;
+            font-size: 1.2rem;
+            margin-top: 8px;
+        }
+
+        /* Filter Modal */
+        #filter-modal .modal-content {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .search-bar {
+                width: 150px !important;
+            }
+            .message-panel {
+                width: 95%;
+                height: 90vh;
+            }
+            .message-sidebar {
+                width: 100%;
+                display: none;
+            }
+            .message-content {
+                width: 100%;
+            }
+            .notification-panel {
+                width: 95%;
+            }
+            .create-recipe-modal {
+                width: 95%;
+            }
+        }
+        @media (max-width: 640px) {
+            .search-bar {
+                display: none;
+            }
+            .nav-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <span class="fas fa-utensils text-red-500 text-2xl mr-2" style="color: #FD5719;" role="img" aria-hidden="true"></span>
+                        <a href="Index.html"><span class="text-xl font-bold gradient-text">Tátti-Dám</span></a>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <div class="relative mx-4 w-64 md:w-96">
+                        <input type="text" id="search-bar" placeholder="Search recipes..."
+                            class="search-bar w-full pl-10 pr-10 py-2 rounded-full border border-gray-300 focus:border-red-400 focus:ring-0" aria-label="Search recipes">
+                        <span class="fas fa-search absolute left-3 top-3 text-gray-400" role="img" aria-hidden="true"></span>
+                        <button id="filter-btn" class="absolute right-3 top-3 text-gray-400 hover:text-red-500" aria-label="Filter recipes">
+                            <span class="fas fa-filter" role="img" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <button id="create-btn" class="hidden md:block bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full font-medium transition" aria-label="Create recipe">
+                        <span class="fas fa-plus mr-2" role="img" aria-hidden="true"></span> Create
+                    </button>
+                    <button id="notification-btn" class="ml-4 relative text-gray-500 hover:text-red-500" aria-label="Notifications">
+                        <span class="fas fa-bell text-xl" role="img" aria-hidden="true"></span>
+                        <span class="notification-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">3</span>
+                    </button>
+                    <button id="message-btn" class="ml-4 text-gray-500 hover:text-red-500" aria-label="Messages">
+                        <span class="fas fa-envelope text-xl" role="img" aria-hidden="true"></span>
+                    </button>
+                    <div class="ml-4 flex items-center">
+                        <div class="relative">
+                            <button id="user-menu" class="flex items-center focus:outline-none" aria-label="User menu" aria-haspopup="true">
+                                <img class="h-8 w-8 rounded-full" src="https://randomuser.me/api/portraits/women/44.jpg" alt="User profile">
+                                <span class="fas fa-chevron-down ml-1 text-gray-500 text-xs" role="img" aria-hidden="true"></span>
+                            </button>
+                            <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Saved Recipes</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                                <div class="border-t border-gray-200"></div>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign out</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Profile Tabs -->
+        </div>
+    </nav>
+
+    <!-- Author Section -->
+    <section class="bg-white border-t border-gray-200 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="flex items-center mb-6 md:mb-0">
+                    <img src="https://randomuser.me/api/portraits/women/12.jpg" 
+                         alt="Sarah Johnson profile" class="h-16 w-16 rounded-full mr-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800">Sarah Johnson</h3>
+                        <p class="text-gray-600">Passionate home cook</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-full font-medium transition">
+                        <i class="fas fa-user-plus mr-2"></i> Follow
+                    </button>
+                    <button class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-100">
+                        <span>Message</span>
+                        <i class="fas fa-envelope"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Recipe Image and Title -->
+            <div class="lg:w-2/3">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=880&q=80"
+                             alt="Avocado Toast with Poached Egg" class="w-full h-96 object-cover recipe-image">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <button class="bg-white bg-opacity-75 rounded-full p-4 hover:bg-opacity-100 transition">
+                                <i class="fas fa-play text-red-500 text-2xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-800">Avocado Toast with Poached Egg</h2>
+                                <p class="text-sm text-gray-500">3 days ago</p>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="rating-stars" id="rating-stars">
+                                    <i class="fas fa-star" data-value="1"></i>
+                                    <i class="fas fa-star" data-value="2"></i>
+                                    <i class="fas fa-star" data-value="3"></i>
+                                    <i class="fas fa-star" data-value="4"></i>
+                                    <i class="fas fa-star" data-value="5"></i>
+                                </div>
+                                <button class="save-btn text-gray-400 hover:text-red-500">
+                                    <i class="far fa-bookmark"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recipe Description -->
+                <div class="mt-6 bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">About This Recipe</h3>
+                    <p class="text-gray-600">
+                        Creamy avocado on toasted sourdough with perfectly poached eggs and chili flakes. This simple yet delicious breakfast is packed with healthy fats and protein, making it a perfect start to your day.
+                    </p>
+                </div>
+                
+                <!-- Ingredients Section -->
+                <div class="mt-6 bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Ingredients</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-check text-red-500 text-xs"></i>
+                            </div>
+                            <span class="text-gray-700">2 slices sourdough</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-check text-red-500 text-xs"></i>
+                            </div>
+                            <span class="text-gray-700">1 avocado</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-check text-red-500 text-xs"></i>
+                            </div>
+                            <span class="text-gray-700">2 eggs</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-check text-red-500 text-xs"></i>
+                            </div>
+                            <span class="text-gray-700">Chili flakes</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-check text-red-500 text-xs"></i>
+                            </div>
+                            <span class="text-gray-700">Salt</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                                <i class="fas fa-check text-red-500 text-xs"></i>
+                            </div>
+                            <span class="text-gray-700">Pepper</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Comments Section -->
+                <div class="mt-6 bg-white rounded-xl shadow-md p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Comments (12)</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <img src="https://randomuser.me/api/portraits/women/12.jpg" alt="User" class="w-10 h-10 rounded-full mr-3">
+                            <div>
+                                <div class="bg-gray-100 rounded-lg p-3">
+                                    <h4 class="font-medium text-gray-800">Sarah Johnson</h4>
+                                    <p class="text-gray-600">This is my go-to breakfast now! So simple and delicious.</p>
+                                </div>
+                                <div class="flex items-center mt-2 text-sm text-gray-500">
+                                    <span class="mr-3">2 days ago</span>
+                                    <button class="hover:text-red-500">Like</button>
+                                    <span class="mx-1">·</span>
+                                    <button class="hover:text-red-500">Reply</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-start pl-12">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="w-10 h-10 rounded-full mr-3">
+                            <div>
+                                <div class="bg-gray-100 rounded-lg p-3">
+                                    <h4 class="font-medium text-gray-800">Michael Chen</h4>
+                                    <p class="text-gray-600">Really easy to make and tastes great!</p>
+                                </div>
+                                <div class="flex items-center mt-2 text-sm text-gray-500">
+                                    <span class="mr-3">1 day ago</span>
+                                    <button class="hover:text-red-500">Like</button>
+                                    <span class="mx-1">·</span>
+                                    <button class="hover:text-red-500">Reply</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="User" class="w-10 h-10 rounded-full mr-3">
+                            <div>
+                                <div class="bg-gray-100 rounded-lg p-3">
+                                    <h4 class="font-medium text-gray-800">Emma Wilson</h4>
+                                    <p class="text-gray-600">Perfect for a quick breakfast. Thanks!</p>
+                                </div>
+                                <div class="flex items-center mt-2 text-sm text-gray-500">
+                                    <span class="mr-3">5 hours ago</span>
+                                    <button class="hover:text-red-500">Like</button>
+                                    <span class="mx-1">·</span>
+                                    <button class="hover:text-red-500">Reply</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <div class="flex items-start">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="You" class="w-10 h-10 rounded-full mr-3">
+                            <div class="flex-1">
+                                <textarea placeholder="Add a comment..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"></textarea>
+                                <div class="flex justify-end mt-2">
+                                    <button class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">Post</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recipe Info -->
+            <div class="lg:w-1/3">
+                <div class="bg-white rounded-xl shadow-md p-6 sticky top-6" style="top: 5rem;">
+                    <div class="flex space-x-2 mb-6 overflow-x-auto pb-2">
+                        <button class="tab-btn active px-4 py-2 rounded-full bg-gray-100 text-gray-800 font-medium text-sm whitespace-nowrap">Details</button>
+                    </div>
+                    <div id="tab-content" class="space-y-4">
+                        <div class="flex justify-between items-center bg-gray-100 rounded-lg p-4">
+                            <span class="text-gray-700 font-medium">Preparation time</span>
+                            <span class="text-gray-600">10 min</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-gray-100 rounded-lg p-4">
+                            <span class="text-gray-700 font-medium">Cooking time</span>
+                            <span class="text-gray-600">5 min</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-gray-100 rounded-lg p-4">
+                            <span class="text-gray-700 font-medium">Difficulty</span>
+                            <span class="text-gray-600">Easy</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-gray-100 rounded-lg p-4">
+                            <span class="text-gray-700 font-medium">Category</span>
+                            <span class="text-gray-600">Breakfast</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-gray-100 rounded-lg p-4">
+                            <span class="text-gray-700 font-medium">Calories</span>
+                            <span class="text-gray-600">320 cal</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recommendations -->
+        <section class="mt-12">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">More Recipes You Might Like</h2>
+                <a href="#" class="text-red-500 hover:text-red-600 font-medium">View All</a>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div class="recipe-card bg-white rounded-xl overflow-hidden shadow-md relative">
+                    <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=880&q=80" alt="Rainbow Buddha Bowl" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-gray-800">Rainbow Buddha Bowl</h3>
+                            <button class="save-btn text-gray-400 hover:text-red-500">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center text-gray-500 text-sm">
+                            <i class="fas fa-clock mr-1"></i>
+                            <span>25 min</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mt-2">@Michael Chen</p>
+                    </div>
+                    <div class="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Michael Chen" class="h-8 w-8 rounded-full">
+                    </div>
+                </div>
+                
+                <div class="recipe-card bg-white rounded-xl overflow-hidden shadow-md relative">
+                    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=880&q=80" alt="Homemade Margherita Pizza" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-gray-800">Homemade Margherita Pizza</h3>
+                            <button class="save-btn text-gray-400 hover:text-red-500">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center text-gray-500 text-sm">
+                            <i class="fas fa-clock mr-1"></i>
+                            <span>40 min</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mt-2">@Emma Wilson</p>
+                    </div>
+                    <div class="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md">
+                        <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="Emma Wilson" class="h-8 w-8 rounded-full">
+                    </div>
+                </div>
+                
+                <div class="recipe-card bg-white rounded-xl overflow-hidden shadow-md relative">
+                    <img src="https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=880&q=80" alt="Fluffy Blueberry Pancakes" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-gray-800">Fluffy Blueberry Pancakes</h3>
+                            <button class="save-btn text-gray-400 hover:text-red-500">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center text-gray-500 text-sm">
+                            <i class="fas fa-clock mr-1"></i>
+                            <span>20 min</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mt-2">@David Kim</p>
+                    </div>
+                    <div class="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md">
+                        <img src="https://randomuser.me/api/portraits/men/22.jpg" alt="David Kim" class="h-8 w-8 rounded-full">
+                    </div>
+                </div>
+                
+                <div class="recipe-card bg-white rounded-xl overflow-hidden shadow-md relative">
+                    <img src="https://images.unsplash.com/photo-1518779578993-ec3579fee39f?auto=format&fit=crop&w=880&q=80" alt="Tropical Green Smoothie" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-lg text-gray-800">Tropical Green Smoothie</h3>
+                            <button class="save-btn text-gray-400 hover:text-red-500">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center text-gray-500 text-sm">
+                            <i class="fas fa-clock mr-1"></i>
+                            <span>5 min</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mt-2">@Sophia Lee</p>
+                    </div>
+                    <div class="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md">
+                        <img src="https://randomuser.me/api/portraits/women/28.jpg" alt="Sophia Lee" class="h-8 w-8 rounded-full">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Filter Modal -->
+    <div id="filter-modal" class="modal modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white rounded-xl w-full max-w-md mx-4 p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Filter Recipes</h3>
+                <button id="close-filter-modal" class="text-gray-500 hover:text-gray-700" aria-label="Close filter modal">
+                    <span class="fas fa-times" role="img" aria-hidden="true"></span>
+                </button>
+            </div>
+            <form id="filter-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">
+                        Ingredients (max 10)
+                    </label>
+                    <div id="filter-ingredients-container">
+                        <div class="filter-ingredient-item">
+                            <input type="text" name="filter-ingredient" placeholder="e.g., avocado"
+                                class="filter-ingredient-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                            <span class="fas fa-times remove-filter-ingredient hidden" role="button" aria-label="Remove ingredient"></span>
+                        </div>
+                    </div>
+                    <span class="fas fa-plus-circle add-filter-ingredient" role="button" aria-label="Add ingredient"></span>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="filter-rating">
+                        Minimum Rating
+                    </label>
+                    <select id="filter-rating" name="filter-rating"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <option value="0">Any</option>
+                        <option value="4.0">4.0+</option>
+                        <option value="4.5">4.5+</option>
+                        <option value="4.8">4.8+</option>
+                    </select>
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" id="clear-filters" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md mr-2 hover:bg-gray-300" aria-label="Clear filters">
+                        Clear
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" aria-label="Apply filters">
+                        Apply
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Recipe Modal -->
+    <div id="create-modal" class="modal modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white rounded-xl w-full max-w-4xl mx-4 create-recipe-modal">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Share Your Recipe</h3>
+                    <button id="close-modal" class="text-gray-500 hover:text-gray-700" aria-label="Close modal">
+                        <span class="fas fa-times" role="img" aria-hidden="true"></span>
+                    </button>
+                </div>
+                <form id="recipe-form">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="recipe-name">
+                            Recipe Name
+                        </label>
+                        <input type="text" id="recipe-name" name="recipe-name" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" aria-required="true">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="recipe-description">
+                            Description
+                        </label>
+                        <textarea id="recipe-description" name="recipe-description" rows="3" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" aria-required="true"></textarea>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="prep-time">
+                                Preparation Time
+                            </label>
+                            <input type="text" id="prep-time" name="prep-time" placeholder="e.g., 15min" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" aria-required="true">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="cook-time">
+                                Cooking Time
+                            </label>
+                            <input type="text" id="cook-time" name="cook-time" placeholder="e.g., 20min" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" aria-required="true">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="recipe-calories">
+                                Calories (per serving)
+                            </label>
+                            <input type="number" id="recipe-calories" name="recipe-calories" placeholder="e.g., 350" min="0"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="recipe-difficulty">
+                                Difficulty Level
+                            </label>
+                            <select id="recipe-difficulty" name="recipe-difficulty"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                                <option value="easy">Easy</option>
+                                <option value="medium">Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">
+                            Ingredients (max 50)
+                        </label>
+                        <div id="ingredients-container">
+                            <div class="ingredient-item">
+                                <input type="text" name="ingredient" placeholder="e.g., 2 cups flour" 
+                                    class="ingredient-input px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" aria-required="true">
+                                <span class="fas fa-times remove-ingredient" role="button" aria-label="Remove ingredient"></span>
+                            </div>
+                        </div>
+                        <span class="fas fa-plus-circle add-ingredient" role="button" aria-label="Add ingredient"></span>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="recipe-category">
+                            Category
+                        </label>
+                        <select id="recipe-category" name="recipe-category" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" aria-required="true">
+                            <option value="breakfast">Breakfast</option>
+                            <option value="lunch">Lunch</option>
+                            <option value="dinner">Dinner</option>
+                            <option value="desserts">Dessert</option>
+                            <option value="vegan">Vegan</option>
+                            <option value="quick">Quick Meals</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">
+                            Upload Photo
+                        </label>
+                        <div id="dropzone" class="border-2 border-dashed border-gray-300 rounded-md p-6 text-center dropzone">
+                            <span class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2" role="img" aria-hidden="true"></span>
+                            <p class="text-gray-500">Drag & drop your photo here or click to browse</p>
+                            <input type="file" id="recipe-image" name="recipe-image" class="hidden" accept="image/*">
+                        </div>
+                        <div id="image-preview" class="hidden mt-2">
+                            <img id="preview-image" src="#" alt="Preview" class="max-h-40 mx-auto rounded-md">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2">
+                            Upload Tutorial Video
+                        </label>
+                        <div id="video-dropzone" class="border-2 border-dashed border-gray-300 rounded-md p-6 text-center dropzone">
+                            <span class="fas fa-video text-3xl text-gray-400 mb-2" role="img" aria-hidden="true"></span>
+                            <p class="text-gray-500">Drag & drop your video here or click to browse</p>
+                            <input type="file" id="tutorial-video" name="tutorial-video" class="hidden" accept="video/*">
+                        </div>
+                        <div id="video-preview" class="hidden mt-2">
+                            <video id="video-preview-element" controls class="max-h-40 mx-auto rounded-md"></video>
+                        </div>
+                    </div>
+                    <div class="modal-footer flex justify-end">
+                        <button type="button" id="cancel-recipe" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md mr-2 hover:bg-gray-300" aria-label="Cancel">
+                            Cancel
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600" aria-label="Share recipe">
+                            Share Recipe
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Overlay and Panel -->
+    <div class="notification-overlay" id="notificationOverlay"></div>
+    <div class="notification-panel" id="notificationPanel">
+        <h1>Notifications <span class="notification-badge" id="notificationBadge">3</span></h1>
+        <div class="notification-section">
+            <h2 class="section-title">Recent</h2>
+            <div id="recentNotifications"></div>
+        </div>
+        <div class="notification-section" style="margin-top: 24px;">
+            <h2 class="section-title">Earlier</h2>
+            <div id="earlierNotifications"></div>
+        </div>
+    </div>
+
+    <!-- Message Overlay and Panel -->
+    <div class="message-overlay" id="messageOverlay"></div>
+    <div class="message-panel" id="messagePanel">
+        <div class="message-container">
+            <div class="message-sidebar">
+                <div class="message-search">
+                    <input type="text" id="message-search" placeholder="Search" aria-label="Search messages">
+                </div>
+                <div class="message-list" id="message-list">
+                    <!-- Chat list will be populated dynamically -->
+                </div>
+            </div>
+            <div class="message-content">
+                <div class="message-header" id="messageHeader">
+                    <div class="message-user-info">
+                        <div class="message-avatar" id="message-avatar"></div>
+                        <div class="message-user-name" id="message-user-name">Select a chat</div>
+                    </div>
+                </div>
+                <div class="message-chat" id="messageChat">
+                    <div class="no-chat-selected">Who would you like to message?</div>
+                </div>
+                <div class="message-input">
+                    <input type="file" id="mediaInput" accept="image/*,video/*" style="display: none;">
+                    <button class="message-media-btn" id="message-media-btn" aria-label="Attach media">📎</button>
+                    <input type="text" id="messageTextInput" placeholder="Message..." aria-label="Message input">
+                    <button class="message-send-btn" id="message-send-btn" disabled aria-label="Send message">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg">
+        <span id="toast-message"></span>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="fab" id="fab-button">
+        <i class="fas fa-plus text-xl"></i>
+    </button>
+
+    <script>
+        // Recipe data
+        const recipe = {
+            id: 1,
+            name: "Avocado Toast with Poached Egg",
+            description: "Creamy avocado on toasted sourdough with perfectly poached eggs and chili flakes. This simple yet delicious breakfast is packed with healthy fats and protein, making it a perfect start to your day.",
+            image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=880&q=80",
+            ingredients: ["2 slices sourdough", "1 avocado", "2 eggs", "Chili flakes", "Salt", "Pepper"],
+            difficulty: "easy",
+            prepTime: "10min",
+            cookTime: "5min",
+            category: "breakfast",
+            calories: "320 cal",
+            user: { name: "Sarah Johnson", avatar: "https://randomuser.me/api/portraits/women/12.jpg" },
+            saved: false,
+            userRating: 0
+        };
+
+        const recommendations = [
+            {
+                id: 2,
+                name: "Rainbow Buddha Bowl",
+                image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=880&q=80",
+                time: "25 min",
+                user: { name: "Michael Chen", avatar: "https://randomuser.me/api/portraits/men/32.jpg" }
+            },
+            {
+                id: 3,
+                name: "Homemade Margherita Pizza",
+                image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=880&q=80",
+                time: "40 min",
+                user: { name: "Emma Wilson", avatar: "https://randomuser.me/api/portraits/women/45.jpg" }
+            },
+            {
+                id: 4,
+                name: "Fluffy Blueberry Pancakes",
+                image: "https://images.unsplash.com/photo-1484723091739-30a097e8f929?auto=format&fit=crop&w=880&q=80",
+                time: "20 min",
+                user: { name: "David Kim", avatar: "https://randomuser.me/api/portraits/men/22.jpg" }
+            },
+            {
+                id: 6,
+                name: "Tropical Green Smoothie",
+                image: "https://images.unsplash.com/photo-1518779578993-ec3579fee39f?auto=format&fit=crop&w=880&q=80",
+                time: "5 min",
+                user: { name: "Sophia Lee", avatar: "https://randomuser.me/api/portraits/women/28.jpg" }
+            }
+        ];
+
+        const notifications = [
+            {
+                id: 1,
+                type: 'like',
+                user: { name: 'Sarah Johnson', avatar: 'https://randomuser.me/api/portraits/women/12.jpg' },
+                text: 'Sarah liked your recipe "Avocado Toast with Poached Egg"',
+                time: '5m ago',
+                image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=880&q=80',
+                recent: true
+            },
+            {
+                id: 2,
+                type: 'comment',
+                user: { name: 'Michael Chen', avatar: 'https://randomuser.me/api/portraits/men/32.jpg' },
+                text: 'Michael commented on your recipe',
+                comment: 'This looks amazing! Can\'t wait to try it.',
+                time: '10m ago',
+                recent: true
+            },
+            {
+                id: 3,
+                type: 'follow',
+                user: { name: 'Emma Wilson', avatar: 'https://randomuser.me/api/portraits/women/45.jpg' },
+                text: 'Emma started following you',
+                time: '1h ago',
+                recent: true
+            }
+        ];
+
+        const messages = [
+            {
+                id: 1,
+                user: { name: 'Sarah Johnson', avatar: 'https://randomuser.me/api/portraits/women/12.jpg' },
+                preview: 'Hey, loved your pizza recipe!',
+                time: '10:30 AM',
+                unread: 2,
+                chat: [
+                    { text: 'Hey, loved your pizza recipe!', timestamp: '10:28 AM', own: false },
+                    { text: 'Thanks! Glad you liked it.', timestamp: '10:30 AM', own: true }
+                ]
+            }
+        ];
+
+        let state = {
+            activeTab: "recipes",
+            recipes: [],
+            savedRecipes: [],
+            likedRecipes: [],
+            currentCategory: 'all',
+            displayedRecipes: 8,
+            filteredRecipes: [],
+            newRecipeId: 9,
+            searchIngredients: [],
+            minRating: 0,
+            selectedChatId: null
+        };
+
+        // DOM Elements
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContent = document.getElementById('tab-content');
+        const saveButton = document.querySelector('.save-btn');
+        const closeModal = document.getElementById('close-modal');
+        const cancelRecipe = document.getElementById('cancel-recipe');
+        const recipeForm = document.getElementById('recipe-form');
+        const dropzone = document.getElementById('dropzone');
+        const recipeImage = document.getElementById('recipe-image');
+        const imagePreview = document.getElementById('image-preview');
+        const previewImage = document.getElementById('preview-image');
+        const videoDropzone = document.getElementById('video-dropzone');
+        const tutorialVideo = document.getElementById('tutorial-video');
+        const videoPreview = document.getElementById('video-preview');
+        const videoPreviewElement = document.getElementById('video-preview-element');
+        const fabButton = document.getElementById('fab-button');
+        const ratingStars = document.getElementById('rating-stars');
+        const searchBar = document.getElementById('search-bar');
+        const filterBtn = document.getElementById('filter-btn');
+        const createBtn = document.getElementById('create-btn');
+        const notificationBtn = document.getElementById('notification-btn');
+        const messageBtn = document.getElementById('message-btn');
+        const userMenu = document.getElementById('user-menu');
+        const userDropdown = document.getElementById('user-dropdown');
+        const createModal = document.getElementById('create-modal');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+        const notificationOverlay = document.getElementById('notificationOverlay');
+        const notificationPanel = document.getElementById('notificationPanel');
+        const notificationBadge = document.getElementById('notificationBadge');
+        const recentNotifications = document.getElementById('recentNotifications');
+        const earlierNotifications = document.getElementById('earlierNotifications');
+        const messageOverlay = document.getElementById('messageOverlay');
+        const messagePanel = document.getElementById('messagePanel');
+        const messageSearch = document.getElementById('message-search');
+        const messageList = document.getElementById('message-list');
+        const messageAvatar = document.getElementById('message-avatar');
+        const messageUserName = document.getElementById('message-user-name');
+        const messageChat = document.getElementById('messageChat');
+        const mediaInput = document.getElementById('mediaInput');
+        const messageMediaBtn = document.getElementById('message-media-btn');
+        const messageTextInput = document.getElementById('messageTextInput');
+        const messageSendBtn = document.getElementById('message-send-btn');
+        const filterModal = document.getElementById('filter-modal');
+        const closeFilterModal = document.getElementById('close-filter-modal');
+        const filterForm = document.getElementById('filter-form');
+        const filterIngredientsContainer = document.getElementById('filter-ingredients-container');
+        const filterRatingSelect = document.getElementById('filter-rating');
+        const clearFiltersBtn = document.getElementById('clear-filters');
+
+        let isRecipeSaved = recipe.saved;
+
+        function init() {
+            loadState();
+            setupEventListeners();
+            renderTabContent('Details');
+            updateSaveButton();
+            updateRatingStars();
+            renderNotifications();
+            renderMessageList();
+        }
+
+        function loadState() {
+            const savedState = localStorage.getItem(`recipe_${recipe.id}_rating`);
+            if (savedState) {
+                recipe.userRating = parseInt(savedState);
+            }
+            const profileState = localStorage.getItem('profileState');
+            if (profileState) {
+                state = JSON.parse(profileState);
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem(`recipe_${recipe.id}_rating`, recipe.userRating);
+            localStorage.setItem('profileState', JSON.stringify(state));
+        }
+
+        function showToast(message, type = 'success') {
+            toastMessage.textContent = message;
+            toast.className = `toast fixed bottom-4 left-1/2 transform -translate-x-1/2 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white px-4 py-2 rounded-md shadow-lg show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function toggleSaveRecipe() {
+            isRecipeSaved = !isRecipeSaved;
+            recipe.saved = isRecipeSaved;
+            updateSaveButton();
+            showToast(isRecipeSaved ? 'Recipe saved to your collection!' : 'Recipe removed from your collection.');
+        }
+
+        function updateSaveButton() {
+            const icon = saveButton.querySelector('i');
+            saveButton.classList.toggle('saved', isRecipeSaved);
+            icon.classList.toggle('far', !isRecipeSaved);
+            icon.classList.toggle('fas', isRecipeSaved);
+            saveButton.classList.add('pulse');
+            setTimeout(() => {
+                saveButton.classList.remove('pulse');
+            }, 500);
+        }
+
+        function updateRatingStars() {
+            const stars = ratingStars.querySelectorAll('i');
+            stars.forEach(star => {
+                const value = parseInt(star.dataset.value);
+                star.classList.toggle('filled', value <= recipe.userRating);
+            });
+        }
+
+        function setUserRating(value) {
+            recipe.userRating = value;
+            updateRatingStars();
+            saveState();
+            showToast(`Rated ${value} star${value > 1 ? 's' : ''}!`);
+        }
+
+        function handleFileUpload(input, previewElement, previewContainer) {
+            if (input.files.length) {
+                const file = input.files[0];
+                if (file.type.match('image.*') || file.type.match('video.*')) {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        previewElement.src = e.target.result;
+                        previewContainer.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    showToast('Please upload a valid image or video.', 'error');
+                }
+            }
+        }
+
+        function addIngredient() {
+            const container = document.getElementById('ingredients-container');
+            if (container.children.length >= 50) {
+                showToast('Maximum 50 ingredients allowed', 'error');
+                return;
+            }
+            const newIngredient = document.createElement('div');
+            newIngredient.className = 'ingredient-item';
+            newIngredient.innerHTML = `
+                <input type="text" name="ingredient" placeholder="e.g., 2 cups flour" 
+                    class="ingredient-input px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" aria-required="true">
+                <span class="fas fa-times remove-ingredient" role="button" aria-label="Remove ingredient"></span>
+            `;
+            container.appendChild(newIngredient);
+        }
+
+        function removeIngredient(element) {
+            const container = document.getElementById('ingredients-container');
+            if (container.children.length > 1) {
+                element.parentElement.remove();
+            } else {
+                showToast('At least one ingredient is required', 'error');
+            }
+        }
+
+        function addFilterIngredient() {
+            const container = filterIngredientsContainer;
+            if (container.children.length >= 10) {
+                showToast('Maximum 10 ingredients allowed', 'error');
+                return;
+            }
+            const newIngredient = document.createElement('div');
+            newIngredient.className = 'filter-ingredient-item';
+            newIngredient.innerHTML = `
+                <input type="text" name="filter-ingredient" placeholder="e.g., avocado" 
+                    class="filter-ingredient-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                <span class="fas fa-times remove-filter-ingredient" role="button" aria-label="Remove ingredient"></span>
+            `;
+            container.appendChild(newIngredient);
+            updateFilterIngredientRemoveButtons();
+        }
+
+        function removeFilterIngredient(element) {
+            const container = filterIngredientsContainer;
+            if (container.children.length > 1) {
+                element.parentElement.remove();
+                updateFilterIngredientRemoveButtons();
+            } else {
+                showToast('At least one ingredient field is required', 'error');
+            }
+        }
+
+        function updateFilterIngredientRemoveButtons() {
+            const items = filterIngredientsContainer.querySelectorAll('.filter-ingredient-item');
+            items.forEach((item, index) => {
+                const removeBtn = item.querySelector('.remove-filter-ingredient');
+                removeBtn.classList.toggle('hidden', index === 0);
+            });
+        }
+
+        function renderTabContent(tab) {
+            if (tab === 'Details') {
+                tabContent.innerHTML = `
+                    <div class="flex justify-between items-center bg-gray-100 rounded-lg p-4">
+                        <span class="text-gray-700 font-medium">Preparation time</span>
+                        <span class="text-gray-600">${recipe.prepTime}</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-100 rounded-lg p-4">
+                        <span class="text-gray-700 font-medium">Cooking time</span>
+                        <span class="text-gray-600">${recipe.cookTime}</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-100 rounded-lg p-4">
+                        <span class="text-gray-700 font-medium">Difficulty</span>
+                        <span class="text-gray-600">${recipe.difficulty.charAt(0).toUpperCase() + recipe.difficulty.slice(1)}</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-100 rounded-lg p-4">
+                        <span class="text-gray-700 font-medium">Category</span>
+                        <span class="text-gray-600">${recipe.category.charAt(0).toUpperCase() + recipe.category.slice(1)}</span>
+                    </div>
+                    <div class="flex justify-between items-center bg-gray-100 rounded-lg p-4">
+                        <span class="text-gray-700 font-medium">Calories</span>
+                        <span class="text-gray-600">${recipe.calories}</span>
+                    </div>
+                `;
+            }
+        }
+
+        function renderNotifications() {
+            recentNotifications.innerHTML = '';
+            earlierNotifications.innerHTML = '';
+            const recent = notifications.filter(n => n.recent);
+            const earlier = notifications.filter(n => !n.recent);
+            recent.forEach(n => recentNotifications.appendChild(createNotificationItem(n)));
+            earlier.forEach(n => earlierNotifications.appendChild(createNotificationItem(n)));
+            notificationBadge.textContent = notifications.length;
+        }
+
+        function createNotificationItem(notification) {
+            const item = document.createElement('div');
+            item.className = 'notification-item';
+            item.dataset.id = notification.id;
+            item.innerHTML = `
+                <img src="${notification.user.avatar}" class="notification-avatar" alt="${notification.user.name}">
+                <div class="notification-content">
+                    <div class="notification-text">${notification.text}</div>
+                    ${notification.comment ? `<div class="notification-comment">"${notification.comment}"</div>` : ''}
+                    <div class="notification-time">${notification.time}</div>
+                </div>
+                ${notification.image ? `<img src="${notification.image}" class="notification-image">` : ''}
+                <button class="notification-options-btn" aria-label="Notification options"><span class="fas fa-ellipsis-v" role="img" aria-hidden="true"></span></button>
+                <div class="notification-options-menu">
+                    <button class="reply">Reply</button>
+                    <button class="remove">Remove</button>
+                </div>
+            `;
+            return item;
+        }
+
+        function renderMessageList(filter = '') {
+            messageList.innerHTML = '';
+            const filteredMessages = filter 
+                ? messages.filter(m => m.user.name.toLowerCase().includes(filter.toLowerCase()))
+                : messages;
+            filteredMessages.forEach(m => {
+                const item = document.createElement('div');
+                item.className = `message-item ${m.id === state.selectedChatId ? 'active' : ''}`;
+                item.dataset.id = m.id;
+                item.innerHTML = `
+                    <div class="message-avatar" style="background-image: url(${m.user.avatar})"></div>
+                    <div class="message-info">
+                        <div class="message-name">${m.user.name}</div>
+                        <div class="message-preview">${m.preview}</div>
+                    </div>
+                    <div class="message-meta">
+                        <div class="message-time">${m.time}</div>
+                        ${m.unread ? `<div class="message-unread">${m.unread}</div>` : ''}
+                    </div>
+                `;
+                messageList.appendChild(item);
+            });
+        }
+
+        function renderChat(chatId) {
+            const chat = messages.find(m => m.id === chatId);
+            if (!chat) {
+                messageChat.innerHTML = '<div class="no-chat-selected">Who would you like to message?</div>';
+                messageUserName.textContent = 'Select a chat';
+                messageAvatar.style.backgroundImage = '';
+                messageSendBtn.disabled = true;
+                return;
+            }
+            state.selectedChatId = chatId;
+            messageUserName.textContent = chat.user.name;
+            messageAvatar.style.backgroundImage = `url(${chat.user.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'})`;
+            messageChat.innerHTML = '';
+            chat.chat.forEach(msg => {
+                const bubble = document.createElement('div');
+                bubble.className = `message-bubble ${msg.own ? 'own-message' : 'other-message'}`;
+                bubble.innerHTML = `
+                    <div class="message-text">${msg.text}</div>
+                    ${msg.media ? `<img src="${msg.media}" class="message-media">` : ''}
+                    <div class="message-timestamp">${msg.timestamp}</div>
+                `;
+                messageChat.appendChild(bubble);
+            });
+            messageChat.scrollTop = messageChat.scrollHeight;
+            chat.unread = 0;
+            renderMessageList();
+            messageSendBtn.disabled = false;
+            saveState();
+        }
+
+        function sendMessage(text, media = null) {
+            if (!state.selectedChatId || !text) return;
+            const chat = messages.find(m => m.id === state.selectedChatId);
+            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const message = { text, timestamp, own: true };
+            if (media) message.media = media;
+            chat.chat.push(message);
+            chat.preview = text.length > 30 ? text.substring(0, 30) + '...' : text;
+            chat.time = timestamp;
+            renderChat(state.selectedChatId);
+            renderMessageList();
+            messageTextInput.value = '';
+            messageSendBtn.disabled = true;
+            messageChat.scrollTop = messageChat.scrollHeight;
+            saveState();
+        }
+
+        function setupEventListeners() {
+            // Navigation Tabs
+            navTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    navTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    state.activeTab = tab.dataset.tab;
+                    saveState();
+                });
+            });
+
+            // Tab Buttons
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    renderTabContent(button.textContent);
+                });
+            });
+
+            // Save Button
+            saveButton.addEventListener('click', toggleSaveRecipe);
+
+            // Rating Stars
+            ratingStars.querySelectorAll('i').forEach(star => {
+                star.addEventListener('click', () => {
+                    const value = parseInt(star.dataset.value);
+                    setUserRating(value);
+                });
+            });
+
+            // Create Modal
+            createBtn.addEventListener('click', () => {
+                createModal.classList.add('active');
+            });
+            fabButton.addEventListener('click', () => {
+                createModal.classList.add('active');
+            });
+            closeModal.addEventListener('click', () => {
+                createModal.classList.remove('active');
+                recipeForm.reset();
+                imagePreview.classList.add('hidden');
+                videoPreview.classList.add('hidden');
+            });
+            cancelRecipe.addEventListener('click', () => {
+                createModal.classList.remove('active');
+                recipeForm.reset();
+                imagePreview.classList.add('hidden');
+                videoPreview.classList.add('hidden');
+            });
+            closeModal.addEventListener('click', () => {
+                createModal.classList.remove('active');
+                recipeForm.reset();
+                imagePreview.classList.add('hidden');
+            });
+
+            cancelRecipe.addEventListener('click', () => {
+                createModal.classList.remove('active');
+                recipeForm.reset();
+                imagePreview.classList.add('hidden');
+            });
+
+            createModal.addEventListener('click', e => {
+                if (e.target === createModal) {
+                    createModal.classList.remove('active');
+                    recipeForm.reset();
+                    imagePreview.classList.add('hidden');
+                }
+            });
+            // Recipe Form
+            recipeForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const ingredients = Array.from(document.querySelectorAll('.ingredient-input'))
+                    .map(input => input.value)
+                    .filter(value => value.trim() !== '');
+                if (ingredients.length === 0) {
+                    showToast('Please add at least one ingredient', 'error');
+                    return;
+                }
+                showToast('Recipe shared successfully!');
+                createModal.classList.remove('active');
+                recipeForm.reset();
+                imagePreview.classList.add('hidden');
+                videoPreview.classList.add('hidden');
+            });
+
+            // Dropzone
+            dropzone.addEventListener('click', () => recipeImage.click());
+            recipeImage.addEventListener('change', () => handleFileUpload(recipeImage, previewImage, imagePreview));
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('active');
+            });
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.classList.remove('active');
+            });
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('active');
+                recipeImage.files = e.dataTransfer.files;
+                handleFileUpload(recipeImage, previewImage, imagePreview);
+            });
+
+            // Video Dropzone
+            videoDropzone.addEventListener('click', () => tutorialVideo.click());
+            tutorialVideo.addEventListener('change', () => handleFileUpload(tutorialVideo, videoPreviewElement, videoPreview));
+            videoDropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                videoDropzone.classList.add('active');
+            });
+            videoDropzone.addEventListener('dragleave', () => {
+                videoDropzone.classList.remove('active');
+            });
+            videoDropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                videoDropzone.classList.remove('active');
+                tutorialVideo.files = e.dataTransfer.files;
+                handleFileUpload(tutorialVideo, videoPreviewElement, videoPreview);
+            });
+
+            // Ingredient Management
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('add-ingredient')) {
+                    addIngredient();
+                }
+                if (e.target.classList.contains('remove-ingredient')) {
+                    removeIngredient(e.target);
+                }
+            });
+
+            // User Menu
+            userMenu.addEventListener('click', () => {
+                userDropdown.classList.toggle('hidden');
+            });
+            document.addEventListener('click', (e) => {
+                if (!userMenu.contains(e.target) && !userDropdown.contains(e.target)) {
+                    userDropdown.classList.add('hidden');
+                }
+            });
+
+            // Notification Panel
+            notificationBtn.addEventListener('click', () => {
+                notificationPanel.classList.toggle('active');
+                notificationOverlay.classList.toggle('active');
+            });
+            notificationOverlay.addEventListener('click', () => {
+                notificationPanel.classList.remove('active');
+                notificationOverlay.classList.remove('active');
+            });
+            notificationPanel.addEventListener('click', (e) => {
+                const optionsBtn = e.target.closest('.notification-options-btn');
+                const replyBtn = e.target.closest('.reply');
+                const removeBtn = e.target.closest('.remove');
+                if (optionsBtn) {
+                    const menu = optionsBtn.nextElementSibling;
+                    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+                } else if (replyBtn) {
+                    showToast('Reply functionality not implemented', 'error');
+                } else if (removeBtn) {
+                    const item = removeBtn.closest('.notification-item');
+                    notifications.splice(notifications.findIndex(n => n.id === parseInt(item.dataset.id)), 1);
+                    renderNotifications();
+                } else if (!e.target.closest('.notification-options-menu')) {
+                    document.querySelectorAll('.notification-options-menu').forEach(menu => {
+                        menu.style.display = 'none';
+                    });
+                }
+            });
+
+            // Message Panel
+            messageBtn.addEventListener('click', () => {
+                messagePanel.classList.add('active');
+                messageOverlay.classList.add('active');
+            });
+            messageOverlay.addEventListener('click', () => {
+                messagePanel.classList.remove('active');
+                messageOverlay.classList.remove('active');
+            });
+            messageList.addEventListener('click', (e) => {
+                const item = e.target.closest('.message-item');
+                if (item) {
+                    renderChat(parseInt(item.dataset.id));
+                }
+            });
+            messageSearch.addEventListener('input', (e) => {
+                renderMessageList(e.target.value);
+            });
+            messageTextInput.addEventListener('input', () => {
+                messageSendBtn.disabled = !messageTextInput.value.trim();
+            });
+            messageSendBtn.addEventListener('click', () => {
+                if (messageTextInput.value.trim()) {
+                    sendMessage(messageTextInput.value.trim());
+                }
+            });
+            messageTextInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && messageTextInput.value.trim()) {
+                    sendMessage(messageTextInput.value.trim());
+                }
+            });
+            messageMediaBtn.addEventListener('click', () => {
+                mediaInput.click();
+            });
+            mediaInput.addEventListener('change', () => {
+                if (mediaInput.files.length) {
+                    const file = mediaInput.files[0];
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        sendMessage('Media message', e.target.result);
+                        mediaInput.value = '';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Filter Modal
+            filterBtn.addEventListener('click', () => {
+                filterModal.classList.add('active');
+            });
+            closeFilterModal.addEventListener('click', () => {
+                filterModal.classList.remove('active');
+            });
+            closeFilterModal.addEventListener('click', closeFilterModalFn);
+            filterModal.addEventListener('click', e => {
+                if (e.target === filterModal) closeFilterModalFn();
+            });
+    
+            function closeFilterModalFn() {
+                filterModal.classList.remove('active');
+                filterForm.reset();
+                filterIngredientsContainer.innerHTML = `
+                    <div class="filter-ingredient-item">
+                        <input type="text" name="filter-ingredient" placeholder="e.g., avocado" 
+                            class="filter-ingredient-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <span class="fas fa-times remove-filter-ingredient hidden" role="button" aria-label="Remove ingredient"></span>
+                    </div>
+                `;
+            }
+    
+            filterForm.addEventListener('submit', e => {
+                e.preventDefault();
+                const ingredientInputs = filterIngredientsContainer.querySelectorAll('.filter-ingredient-input');
+                state.searchIngredients = Array.from(ingredientInputs)
+                    .map(input => input.value.trim())
+                    .filter(val => val);
+                state.minRating = parseFloat(filterRatingSelect.value) || 0;
+                applyFilters(searchBar.value);
+                closeFilterModalFn();
+                saveState();
+            });
+            filterForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const ingredients = Array.from(filterIngredientsContainer.querySelectorAll('.filter-ingredient-input'))
+                    .map(input => input.value.trim())
+                    .filter(value => value);
+                state.searchIngredients = ingredients;
+                state.minRating = parseFloat(filterRatingSelect.value) || 0;
+                filterModal.classList.remove('active');
+                showToast('Filters applied!');
+                saveState();
+            });
+            clearFiltersBtn.addEventListener('click', () => {
+                filterForm.reset();
+                filterIngredientsContainer.innerHTML = `
+                    <div class="filter-ingredient-item">
+                        <input type="text" name="filter-ingredient" placeholder="e.g., avocado"
+                            class="filter-ingredient-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <span class="fas fa-times remove-filter-ingredient hidden" role="button" aria-label="Remove ingredient"></span>
+                    </div>
+                `;
+                state.searchIngredients = [];
+                state.minRating = 0;
+                showToast('Filters cleared!');
+                saveState();
+            });
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('add-filter-ingredient')) {
+                    addFilterIngredient();
+                }
+                if (e.target.classList.contains('remove-filter-ingredient')) {
+                    removeFilterIngredient(e.target);
+                }
+            });
+
+            // Search Bar
+            searchBar.addEventListener('input', (e) => {
+                // Search functionality can be implemented here
+            });
+        }
+
+        // Initialize
+        init();
+    </script>
+    </body>
+    </html>
