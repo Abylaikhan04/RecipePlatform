@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tátti-Dám - Share & Discover Recipes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #e8f6f6 0%, #fff3eb 100%);
+        }
+        .text-gradient {
+            background: linear-gradient(45deg, #462f4d 0%, #fd5719 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #fd5719 0%, #ff581a 100%);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #ff581a 0%, #fd5719 100%);
+        }
+        .feature-card {
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+        .modal-content {
+            transition: transform 0.3s ease;
+            transform: translateY(20px);
+        }
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        .toast {
+            transition: all 0.3s ease;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast.hide {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .form-input {
+            transition: all 0.3s ease;
+        }
+        .form-input:focus {
+            border-color: #fd5719;
+            box-shadow: 0 0 0 3px rgba(253, 87, 25, 0.2);
+        }
+        .nav-link:hover {
+            color: #fd5719;
+        }
+        .decorative-circle {
+            border: 1px solid rgba(62, 180, 177, 0.45);
+        }
+    </style>
+</head>
+<body class="font-sans bg-white">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <i class="fas fa-utensils text-red-500 text-2xl mr-2" style="color: #fd5719;"></i>
+                        <a href="Project2.html"><span class="text-xl font-bold gradient-text" style="color: #fd5719;">Tátti-Dám</span></a>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="nav-link text-gray-700 hover:text-orange-600 font-medium">Home</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="login-btn" class="hidden md:block text-gray-700 hover:text-orange-600 font-medium">
+                        Log in
+                    </button>
+                    <button id="register-btn" class="btn-primary text-white px-6 py-2 rounded-full font-medium transition">
+                        Register
+                    </button>
+                    <button id="mobile-menu-btn" class="md:hidden text-gray-700">
+                        <i class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <div class="px-4 py-3 space-y-3">
+                <a href="#" class="block nav-link text-gray-700 hover:text-orange-600 font-medium">Home</a>
+                <div class="pt-2 border-t border-gray-200">
+                    <button id="mobile-login-btn" class="w-full text-left nav-link text-gray-700 hover:text-orange-600 font-medium py-2">
+                        Log in
+                    </button>
+                    <button id="mobile-register-btn" class="w-full btn-primary text-white px-4 py-2 rounded-full font-medium mt-2">
+                        Register
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-12 md:mb-0">
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6 text-gradient">
+                        Tátti-Dám
+                    </h1>
+                    <p class="text-xl text-gray-700 mb-8">
+                        Save, share, and discover amazing recipes from around the world. 
+                        Join our community of food lovers today!
+                    </p>
+                    <div class="flex space-x-4">
+                        <button id="hero-register-btn" class="btn-primary text-white px-8 py-3 rounded-full font-medium text-lg">
+                            Get Started
+                        </button>
+                        <a href="Home2.html"><button id="guest-btn" class="border border-orange-600 text-orange-600 px-8 py-3 rounded-full font-medium text-lg hover:bg-orange-50">
+                            Try as Guest
+                        </button></a>
+                    </div>
+                </div>
+                <div style="width: 150px;"></div>
+                <div class="md:w-1/2 relative">
+                    <div class="relative z-10">
+                        <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80" 
+                             alt="Delicious food" class="rounded-2xl shadow-xl w-full h-auto">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    Why Choose Tátti-Dám?
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Our platform offers everything you need to explore, create, and share culinary masterpieces.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md">
+                    <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-bookmark text-orange-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Save Recipes</h3>
+                    <p class="text-gray-600">
+                        Keep your favorite recipes organized in one place with our easy-to-use bookmarking system.
+                    </p>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md">
+                    <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-share-alt text-orange-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Share Creations</h3>
+                    <p class="text-gray-600">
+                        Share your culinary creations with the community and get feedback from fellow food enthusiasts.
+                    </p>
+                </div>
+                
+                <div class="feature-card bg-white p-8 rounded-xl shadow-md">
+                    <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-utensils text-orange-600 text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Discover New Dishes</h3>
+                    <p class="text-gray-600">
+                        Explore thousands of recipes from around the world, filtered by cuisine, diet, and cooking time.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    How It Works
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Getting started with Tátti-Dám is quick and easy. Here's how you can join our community.
+                </p>
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-center mb-12">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-orange-600 text-white rounded-full flex items-center justify-center mr-4">
+                                <span class="font-bold">1</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900">Create an Account</h3>
+                        </div>
+                        <p class="text-gray-600">
+                            Sign up in just a few seconds with your email or social media account. 
+                            You can also try the platform as a guest.
+                        </p>
+                    </div>
+                </div>
+                <div class="md:w-1/2 md:pl-12">
+                    <img src="https://images.unsplash.com/photo-1606787366850-de6330128bfc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80" 
+                         alt="Create account" class="rounded-xl shadow-md w-full h-auto">
+                </div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-center mb-12">
+                <div class="md:w-1/2 order-2 md:order-1 md:pr-12">
+                    <img src="https://images.unsplash.com/photo-1547592180-85f173990554?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80" 
+                         alt="Explore recipes" class="rounded-xl shadow-md w-full h-auto">
+                </div>
+                <div class="md:w-1/2 order-1 md:order-2 mb-8 md:mb-0">
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-orange-600 text-white rounded-full flex items-center justify-center mr-4">
+                                <span class="font-bold">2</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900">Explore Recipes</h3>
+                        </div>
+                        <p class="text-gray-600">
+                            Browse through thousands of recipes from professional chefs and home cooks alike. 
+                            Filter by cuisine, dietary needs, or cooking time.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-orange-600 text-white rounded-full flex items-center justify-center mr-4">
+                                <span class="font-bold">3</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900">Share Your Creations</h3>
+                        </div>
+                        <p class="text-gray-600">
+                            Upload your own recipes with photos and step-by-step instructions. 
+                            Get feedback from the community and improve your cooking skills.
+                        </p>
+                    </div>
+                </div>
+                <div class="md:w-1/2 md:pl-12">
+                    <img src="https://images.unsplash.com/photo-1606787366850-de6330128bfc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80" 
+                         alt="Share recipes" class="rounded-xl shadow-md w-full h-auto">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    What Our Users Say
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Join thousands of happy users who have transformed their cooking experience.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gray-50 p-8 rounded-xl">
+                    <div class="flex items-center mb-4">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="w-12 h-12 rounded-full mr-4">
+                        <div>
+                            <h4 class="font-bold text-gray-900">Sarah Johnson</h4>
+                            <p class="text-gray-600 text-sm">Home Cook</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        "Tátti-Dám has completely changed how I cook. I've discovered so many amazing recipes and made friends with fellow food lovers."
+                    </p>
+                    <div class="flex text-orange-500">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-8 rounded-xl">
+                    <div class="flex items-center mb-4">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="w-12 h-12 rounded-full mr-4">
+                        <div>
+                            <h4 class="font-bold text-gray-900">Michael Chen</h4>
+                            <p class="text-gray-600 text-sm">Professional Chef</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        "As a professional chef, I appreciate the quality of recipes on Tátti-Dám. It's my go-to source for inspiration."
+                    </p>
+                    <div class="flex text-orange-500">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-50 p-8 rounded-xl">
+                    <div class="flex items-center mb-4">
+                        <img src="https://randomuser.me/api/portraits/women/28.jpg" alt="User" class="w-12 h-12 rounded-full mr-4">
+                        <div>
+                            <h4 class="font-bold text-gray-900">Emma Wilson</h4>
+                            <p class="text-gray-600 text-sm">Food Blogger</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        "The community on Tátti-Dám is amazing. I've grown my food blog significantly thanks to the exposure here."
+                    </p>
+                    <div class="flex text-orange-500">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-gradient-to-r from-orange-500 to-orange-600">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+                Ready to Transform Your Cooking Experience?
+            </h2>
+            <p class="text-xl text-orange-100 mb-8 max-w-3xl mx-auto">
+                Join thousands of food enthusiasts who are already enjoying Tátti-Dám.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <button id="cta-register-btn" class="bg-white text-orange-600 px-8 py-3 rounded-full font-bold text-lg hover:bg-gray-100 transition">
+                    Sign Up Now
+                </button>
+                <a href="Home2.html"><button id="cta-guest-btn" class="border-2 border-white text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-white hover:bg-opacity-10 transition">
+                    Try as Guest
+                </button></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Registration Modal -->
+    <!-- Registration Modal -->
+<div id="registration-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="modal-content bg-white rounded-xl w-full max-w-md mx-4">
+        <div class="p-8">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900">Welcome to</h3>
+                    <h2 class="text-3xl font-bold text-gradient">Tátti-Dám</h2>
+                    <p class="text-gray-600">Create your account</p>
+                </div>
+                <button id="close-registration-modal" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="registration-form">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="reg-nickname">
+                        Enter your nickname
+                    </label>
+                    <input type="text" id="reg-nickname" required
+                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="reg-email">
+                        Enter your email address
+                    </label>
+                    <input type="email" id="reg-email" required
+                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="reg-phone">
+                        Enter your phone number
+                    </label>
+                    <input type="tel" id="reg-phone"
+                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="reg-password">
+                        Create your password
+                    </label>
+                    <input type="password" id="reg-password" required
+                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="reg-repeat-password">
+                        Repeat password
+                    </label>
+                    <input type="password" id="reg-repeat-password" required
+                           class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none">
+                </div>
+
+                <button type="submit" class="btn-primary text-white w-full px-4 py-3 rounded-lg font-medium mb-4">
+                    Register
+                </button>
+                <div class="text-center text-gray-600">
+                    Already have an account? 
+                    <button type="button" id="switch-to-login" class="text-orange-600 font-medium hover:underline">
+                        Log in
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="modal-content bg-white rounded-xl w-full max-w-md mx-4">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-900">Welcome back to</h3>
+                        <h2 class="text-3xl font-bold text-gradient">Tátti-Dám</h2>
+                        <p class="text-gray-600">Log in to your account</p>
+                    </div>
+                    <button id="close-login-modal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <form id="login-form">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="login-email">
+                            Email address
+                        </label>
+                        <input type="email" id="login-email" required
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="login-password">
+                            Password
+                        </label>
+                        <input type="password" id="login-password" required
+                               class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none">
+                    </div>
+                    <div class="flex justify-between items-center mb-6">
+                        <label class="flex items-center text-gray-700 text-sm">
+                            <input type="checkbox" class="rounded border-gray-300 text-orange-600 focus:ring-orange-500 mr-2">
+                            Remember me
+                        </label>
+                        <a href="#" class="text-sm text-orange-600 hover:underline">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="btn-primary text-white w-full px-4 py-3 rounded-lg font-medium mb-4">
+                        Log in
+                    </button>
+                    <div class="text-center text-gray-600">
+                        Don't have an account? 
+                        <button type="button" id="switch-to-register" class="text-orange-600 font-medium hover:underline">
+                            Register
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg opacity-0">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span id="toast-message"></span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Tátti-Dám</h3>
+                    <p class="text-gray-400">
+                        Discover, save, and share the world's best recipes. Join our community of food lovers today!
+                    </p>
+                </div>
+                <div class="text-right">
+                    <p class="text-gray-400">© 2025 Tátti-Dám. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // DOM Elements
+        const registrationModal = document.getElementById('registration-modal');
+        const loginModal = document.getElementById('login-modal');
+        const closeRegistrationModal = document.getElementById('close-registration-modal');
+        const closeLoginModal = document.getElementById('close-login-modal');
+        const registerBtn = document.getElementById('register-btn');
+        const loginBtn = document.getElementById('login-btn');
+        const heroRegisterBtn = document.getElementById('hero-register-btn');
+        const guestBtn = document.getElementById('guest-btn');
+        const ctaRegisterBtn = document.getElementById('cta-register-btn');
+        const ctaGuestBtn = document.getElementById('cta-guest-btn');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileRegisterBtn = document.getElementById('mobile-register-btn');
+        const mobileLoginBtn = document.getElementById('mobile-login-btn');
+        const switchToLogin = document.getElementById('switch-to-login');
+        const switchToRegister = document.getElementById('switch-to-register');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toast-message');
+
+        // Show modal functions
+        function showRegistrationModal() {
+            loginModal.classList.remove('active');
+            registrationModal.classList.add('active');
+            mobileMenu.classList.add('hidden');
+        }
+
+        function showLoginModal() {
+            registrationModal.classList.remove('active');
+            loginModal.classList.add('active');
+            mobileMenu.classList.add('hidden');
+        }
+
+        // Close modal functions
+        function closeModals() {
+            registrationModal.classList.remove('active');
+            loginModal.classList.remove('active');
+        }
+
+        // Event listeners
+        registerBtn.addEventListener('click', showRegistrationModal);
+        loginBtn.addEventListener('click', showLoginModal);
+        heroRegisterBtn.addEventListener('click', showRegistrationModal);
+        ctaRegisterBtn.addEventListener('click', showRegistrationModal);
+        mobileRegisterBtn.addEventListener('click', showRegistrationModal);
+        mobileLoginBtn.addEventListener('click', showLoginModal);
+
+        guestBtn.addEventListener('click', () => {
+            showToast('Enjoying Tátti-Dám as a guest!', 'success');
+        });
+
+        ctaGuestBtn.addEventListener('click', () => {
+            showToast('Enjoying Tátti-Dám as a guest!', 'success');
+        });
+
+        closeRegistrationModal.addEventListener('click', closeModals);
+        closeLoginModal.addEventListener('click', closeModals);
+        switchToLogin.addEventListener('click', showLoginModal);
+        switchToRegister.addEventListener('click', showRegistrationModal);
+
+        // Mobile menu toggle
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === registrationModal || e.target === loginModal) {
+                closeModals();
+            }
+        });
+
+        // Validate email format
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Form submissions
+        document.getElementById('registration-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    console.log('Форма регистрации отправлена');
+
+    // Получаем значения полей формы
+    const name = document.getElementById('reg-nickname').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const phoneNumber = document.getElementById('reg-phone').value.trim();
+    const password = document.getElementById('reg-password').value.trim();
+    const repeatPassword = document.getElementById('reg-repeat-password').value.trim();
+
+    // Валидация на клиенте
+    if (!isValidEmail(email)) {
+        showToast('Неверный формат email!', 'error');
+        console.log('Ошибка: Неверный формат email');
+        return;
+    }
+    if (password.length < 8) {
+        showToast('Пароль должен быть не менее 8 символов!', 'error');
+        console.log('Ошибка: Пароль слишком короткий');
+        return;
+    }
+    if (password !== repeatPassword) {
+        showToast('Пароли не совпадают!', 'error');
+        console.log('Ошибка: Пароли не совпадают');
+        return;
+    }
+
+    // Подготовка данных для отправки
+    const requestData = {
+        name,
+        email,
+        phoneNumber,
+        password,
+        repeatPassword
+    };
+    console.log('Данные для API:', requestData);
+
+    // Изменяем состояние кнопки отправки
+    const submitButton = document.querySelector('#registration-form button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Загрузка...';
+
+    try {
+        // Отправка запроса на сервер
+        const response = await fetch('https://platform-i2ei.onrender.com/api/users/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': '*/*' // Принимаем любой тип контента
+            },
+            body: JSON.stringify(requestData)
+        });
+
+        // Получаем тело ответа
+        const responseText = await response.clone().text();
+        console.log('Статус ответа:', response.status);
+        console.log('Полный ответ от API:', responseText);
+
+        let data = {};
+        const contentType = response.headers.get('content-type');
+
+        if (responseText && responseText.trim()) {
+            if (contentType && contentType.includes('application/json')) {
+                try {
+                    data = JSON.parse(responseText);
+                    console.log('Данные от API:', data);
+                } catch (jsonError) {
+                    console.error('Ошибка парсинга JSON:', jsonError);
+                    showToast('Некорректный формат ответа от сервера.', 'error');
+                    return;
+                }
+            } else {
+                data = { error: responseText };
+                console.log('Ответ не в формате JSON, обработан как текст:', data);
+            }
+        } else {
+            console.warn('Тело ответа пустое или содержит только пробелы');
+            data = { message: null, token: '' };
+        }
+
+        if (response.ok) {
+            // Успешная регистрация: сохраняем email и token
+            localStorage.setItem('email', email);
+            localStorage.setItem('token', data.token || '');
+            console.log('Сохранены email:', email, 'и token:', data.token || '');
+
+            // Закрываем модальные окна
+            closeModals();
+            showToast(data.message || 'Регистрация успешна!', 'success');
+            console.log('Попытка перенаправления на Home2.html');
+            window.location.assign('Home2.html'); // Надежное перенаправление
+        } else {
+            showToast(data.error || `Ошибка регистрации (код: ${response.status})`, 'error');
+            console.log('Ошибка сервера:', data.error);
+        }
+    } catch (error) {
+        console.error('Ошибка при регистрации:', error);
+        showToast('Сервер не отвечает. Попробуйте позже.', 'error');
+    } finally {
+        // Восстанавливаем состояние кнопки
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+    }
+});
+
+// Функция валидации email
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// Функция показа тост-уведомлений
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+    toastMessage.textContent = message;
+    toast.className = `toast fixed bottom-4 left-1/2 transform -translate-x-1/2 ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    } text-white px-4 py-2 rounded-md shadow-lg flex items-center show`;
+    toast.innerHTML = `<i class="fas ${
+        type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'
+    } mr-2"></i><span id="toast-message">${message}</span>`;
+    setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
+
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    console.log('Форма входа отправлена');
+
+    // Получаем значения полей формы
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    console.log('Данные:', { email, password });
+
+    // Валидация на клиенте
+    if (!isValidEmail(email)) {
+        showToast('Неверный формат email!', 'error');
+        console.log('Ошибка: Неверный формат email');
+        return;
+    }
+
+    // Изменяем состояние кнопки отправки
+    const submitButton = document.querySelector('#login-form button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Вход...';
+
+    try {
+        // Отправка запроса на сервер
+        const response = await fetch('https://platform-i2ei.onrender.com/api/users/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ email, password }),
+        });
+
+        // Обработка ответа сервера
+        const responseText = await response.text();
+        console.log('Статус ответа:', response.status);
+        console.log('Ответ от API:', responseText);
+
+        let data = {};
+        try {
+            data = JSON.parse(responseText);
+            console.log('Данные от API:', data);
+        } catch (jsonError) {
+            console.error('Ошибка парсинга JSON:', jsonError);
+            showToast('Некорректный формат ответа от сервера.', 'error');
+            return;
+        }
+
+        if (response.ok) {
+            // Успешный вход
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('token', data.token);
+            
+            // Проверяем, есть ли профиль в localStorage
+            if (!localStorage.getItem('userProfile')) {
+                // Создаем базовый профиль, если его нет
+                const userProfile = {
+                    name: email.split('@')[0],
+                    email: email,
+                    username: `@${email.split('@')[0]}`,
+                    bio: '',
+                    avatar: 'https://randomuser.me/api/portraits/lego/1.jpg',
+                    followers: 0,
+                    following: 0,
+                    recipesCount: 0
+                };
+                localStorage.setItem('userProfile', JSON.stringify(userProfile));
+            }
+
+            showToast('Вход выполнен!', 'success');
+            window.location.href = 'Profile2.html';
+        } else {
+            showToast(data.error || `Ошибка входа (код: ${response.status})`, 'error');
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showToast('Ошибка сервера. Попробуйте позже.', 'error');
+    } finally {
+        // Восстанавливаем состояние кнопки
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+    }
+});
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            toastMessage.textContent = message;
+            toast.classList.remove('bg-green-500', 'bg-red-500');
+            toast.classList.add(type === 'success' ? 'bg-green-500' : 'bg-red-500');
+            toast.classList.add('show');
+            console.log(`Тост показан: ${message} (${type})`);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
