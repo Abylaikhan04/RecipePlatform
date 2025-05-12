@@ -606,9 +606,6 @@
 
         /* Responsive Adjustments */
         @media (max-width: 768px) {
-            .search-bar {
-                width: 150px !important;
-            }
             .message-panel {
                 width: 95%;
                 height: 90vh;
@@ -626,14 +623,16 @@
             .create-recipe-modal {
                 width: 95%;
             }
+            .search-bar {
+                width: 150px !important;
+            }
         }
         @media (max-width: 640px) {
             .search-bar {
                 display: none;
             }
-            .nav-tabs {
-                flex-wrap: nowrap;
-                overflow-x: auto;
+            #search-container{
+                display: none;
             }
         }
     </style>
@@ -650,7 +649,7 @@
                     </div>
                 </div>
                 <div class="flex items-center">
-                    <div class="relative mx-4 w-64 md:w-96">
+                    <div class="relative mx-4 w-64 md:w-96" id="search-container">
                         <input type="text" id="search-bar" placeholder="Search recipes..."
                             class="search-bar w-full pl-10 pr-10 py-2 rounded-full border border-gray-300 focus:border-red-400 focus:ring-0" aria-label="Search recipes">
                         <span class="fas fa-search absolute left-3 top-3 text-gray-400" role="img" aria-hidden="true"></span>
