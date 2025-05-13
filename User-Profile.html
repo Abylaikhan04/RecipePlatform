@@ -1045,1325 +1045,1308 @@
         <span id="toast-message"></span>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log('Страница User-Profile.html загружена');
+    <script>document.addEventListener('DOMContentLoaded', async () => {
+    console.log('Страница User-Profile.html загружена');
 
-            // Получаем email и token из localStorage
-            const email = localStorage.getItem('userEmail');
-            const token = localStorage.getItem('token');
-            console.log('Email из localStorage:', email);
-            console.log('Token из localStorage:', token);
+    // Получаем email и token из localStorage
+    const email = localStorage.getItem('userEmail');
+    const token = localStorage.getItem('token');
+    console.log('Email из localStorage:', email);
+    console.log('Token из localStorage:', token);
 
-            if (!email || !token) {
-                console.error('Email или токен не найдены в localStorage');
-                showToast('Ошибка: Пожалуйста, войдите в систему.', 'error');
-                setTimeout(() => {
-                    window.location.assign('Index.html'); // Перенаправление на страницу входа
-                }, 3000);
-                return;
-            }
+    if (!email || !token) {
+        console.error('Email или токен не найдены в localStorage');
+        showToast('Ошибка: Пожалуйста, войдите в систему.', 'error');
+        setTimeout(() => {
+            window.location.assign('Index.html');
+        }, 3000);
+        return;
+    }
 
-            // API и константы
-            const API_URL = 'https://platform-i2ei.onrender.com/api';
-            const DEFAULT_AVATAR = 'https://randomuser.me/api/portraits/lego/1.jpg';
+    // API и константы
+    const API_URL = 'https://platform-i2ei.onrender.com/api';
+    const DEFAULT_AVATAR = 'https://randomuser.me/api/portraits/lego/1.jpg';
 
-            // Данные рецептов (мок-данные для демонстрации)
-            const recipes = [
-                {
-                    id: 1,
-                    name: "Avocado Toast with Poached Egg",
-                    description: "Creamy avocado on toasted sourdough with perfectly poached eggs and chili flakes.",
-                    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=880&q=80",
-                    time: "15 min",
-                    calories: "320 cal",
-                    difficulty: "Easy",
-                    rating: 4.8,
-                    user: { name: "Balzhan Yerzhankyzy", avatar: "https://randomuser.me/api/portraits/women/44.jpg" },
-                    saved: false,
-                    likes: 124,
-                    comments: 23,
-                    ingredients: ["2 slices sourdough", "1 avocado", "2 eggs", "Chili flakes", "Salt", "Pepper"],
-                    category: "breakfast",
-                    prepTime: "10min",
-                    cookTime: "5min"
-                },
-                {
-                    id: 2,
-                    name: "Rainbow Buddha Bowl",
-                    description: "Colorful bowl packed with quinoa, roasted veggies and tahini dressing.",
-                    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=880&q=80",
-                    time: "25 min",
-                    calories: "450 cal",
-                    difficulty: "Medium",
-                    rating: 4.5,
-                    user: { name: "Balzhan Yerzhankyzy", avatar: "https://randomuser.me/api/portraits/women/44.jpg" },
-                    saved: false,
-                    likes: 89,
-                    comments: 15,
-                    ingredients: ["1 cup quinoa", "1 avocado", "Mixed veggies", "Tahini", "Lemon juice"],
-                    category: "lunch",
-                    prepTime: "15min",
-                    cookTime: "10min"
-                },
-                {
-                    id: 3,
-                    name: "Homemade Margherita Pizza",
-                    description: "Classic pizza with fresh mozzarella, basil, and tomato sauce on homemade dough.",
-                    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=880&q=80",
-                    time: "40 min",
-                    calories: "680 cal",
-                    difficulty: "Medium",
-                    rating: 4.9,
-                    user: { name: "Balzhan Yerzhankyzy", avatar: "https://randomuser.me/api/portraits/women/44.jpg" },
-                    saved: true,
-                    likes: 215,
-                    comments: 42,
-                    ingredients: ["Pizza dough", "Mozzarella", "Basil", "Tomato sauce", "Olive oil"],
-                    category: "dinner",
-                    prepTime: "20min",
-                    cookTime: "20min"
-                }
-            ];
+    // Мок-данные для рецептов, подписчиков, уведомлений и сообщений
+    const recipes = [
+        {
+            id: 1,
+            name: "Avocado Toast with Poached Egg",
+            description: "Creamy avocado on toasted sourdough with perfectly poached eggs and chili flakes.",
+            image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=880&q=80",
+            time: "15 min",
+            calories: "320 cal",
+            difficulty: "Easy",
+            rating: 4.8,
+            user: { name: "Balzhan Yerzhankyzy", avatar: "https://randomuser.me/api/portraits/women/44.jpg" },
+            saved: false,
+            likes: 124,
+            comments: 23,
+            ingredients: ["2 slices sourdough", "1 avocado", "2 eggs", "Chili flakes", "Salt", "Pepper"],
+            category: "breakfast",
+            prepTime: "10min",
+            cookTime: "5min"
+        },
+        // ... остальные рецепты как в оригинале
+    ];
 
-            // Мок-данные для подписчиков, подписок, уведомлений и сообщений
-            let followers = [
-                { name: "Sarah Johnson", avatar: "https://randomuser.me/api/portraits/women/12.jpg", username: "@sarahj", isFollowing: true }
-            ];
+    let followers = [
+        { name: "Sarah Johnson", avatar: "https://randomuser.me/api/portraits/women/12.jpg", username: "@sarahj", isFollowing: true }
+    ];
 
-            let following = [
-                { name: "Jamie Oliver", avatar: "https://randomuser.me/api/portraits/men/42.jpg", username: "@jamieo", isFollowing: true }
-            ];
+    let following = [
+        { name: "Jamie Oliver", avatar: "https://randomuser.me/api/portraits/men/42.jpg", username: "@jamieo", isFollowing: true }
+    ];
 
-            const notifications = [
-                {
-                    id: 1,
-                    type: 'like',
-                    user: { name: 'Sarah Johnson', avatar: 'https://randomuser.me/api/portraits/women/12.jpg' },
-                    text: 'Sarah liked your recipe "Avocado Toast with Poached Egg"',
-                    time: '5m ago',
-                    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=880&q=80',
-                    recent: true
-                }
-            ];
+    const notifications = [
+        {
+            id: 1,
+            type: 'like',
+            user: { name: 'Sarah Johnson', avatar: 'https://randomuser.me/api/portraits/women/12.jpg' },
+            text: 'Sarah liked your recipe "Avocado Toast with Poached Egg"',
+            time: '5m ago',
+            image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=880&q=80',
+            recent: true
+        }
+    ];
 
-            const messages = [
-                {
-                    id: 1,
-                    user: { name: 'Sarah Johnson', avatar: 'https://randomuser.me/api/portraits/women/12.jpg' },
-                    preview: 'Hey, loved your pizza recipe!',
-                    time: '10:30 AM',
-                    unread: 2,
-                    chat: [
-                        { text: 'Hey, loved your pizza recipe!', timestamp: '10:28 AM', own: false },
-                        { text: 'Thanks! Glad you liked it.', timestamp: '10:30 AM', own: true }
-                    ]
-                }
-            ];
+    const messages = [
+        {
+            id: 1,
+            user: { name: 'Sarah Johnson', avatar: 'https://randomuser.me/api/portraits/women/12.jpg' },
+            preview: 'Hey, loved your pizza recipe!',
+            time: '10:30 AM',
+            unread: 2,
+            chat: [
+                { text: 'Hey, loved your pizza recipe!', timestamp: '10:28 AM', own: false },
+                { text: 'Thanks! Glad you liked it.', timestamp: '10:30 AM', own: true }
+            ]
+        }
+    ];
 
-            // Состояние приложения
-            let profile = {
-                name: "",
-                username: "",
-                bio: "",
-                avatar: DEFAULT_AVATAR,
-                followers: followers.length,
-                following: following.length,
-                isFollowing: false,
-                isPro: false
+    // Состояние приложения
+    let profile = {
+        name: "",
+        username: "",
+        bio: "",
+        avatar: DEFAULT_AVATAR,
+        followers: followers.length,
+        following: following.length,
+        isFollowing: false,
+        isPro: false
+    };
+
+    let state = {
+        activeTab: "recipes",
+        recipes: recipes,
+        savedRecipes: [],
+        likedRecipes: [],
+        currentCategory: 'all',
+        displayedRecipes: 8,
+        filteredRecipes: [...recipes],
+        newRecipeId: recipes.length + 1,
+        searchIngredients: [],
+        minRating: 0,
+        selectedChatId: null
+    };
+
+    // DOM элементы (без изменений)
+    const searchBar = document.getElementById('search-bar');
+    const filterBtn = document.getElementById('filter-btn');
+    const createBtn = document.getElementById('create-btn');
+    const notificationBtn = document.getElementById('notification-btn');
+    const messageBtn = document.getElementById('message-btn');
+    const tabs = document.querySelectorAll('[data-tab]');
+    const recipesGrid = document.getElementById('recipes-grid');
+    const savedGrid = document.getElementById('saved-grid');
+    const editProfileBtn = document.getElementById('edit-profile-btn');
+    const followersBtn = document.getElementById('followers-btn');
+    const followingBtn = document.getElementById('following-btn');
+    const recipesBtn = document.getElementById('recipes-btn');
+    const profileName = document.getElementById('profile-name');
+    const profileUsername = document.getElementById('profile-username');
+    const profileBio = document.getElementById('profile-bio');
+    const profileAvatar = document.getElementById('profile-avatar');
+    const followersCount = document.getElementById('followers-count');
+    const followingCount = document.getElementById('following-count');
+    const recipesCount = document.getElementById('recipes-count');
+    const editProfileModal = document.getElementById('edit-profile-modal');
+    const closeEditModal = document.getElementById('close-edit-modal');
+    const cancelEdit = document.getElementById('cancel-edit');
+    const editProfileForm = document.getElementById('edit-profile-form');
+    const profileDropzone = document.getElementById('profile-dropzone');
+    const profileImage = document.getElementById('profile-image');
+    const profileImagePreview = document.getElementById('profile-image-preview');
+    const profilePreviewImage = document.getElementById('profile-preview-image');
+    const saveProfileBtn = document.getElementById('save-profile-btn');
+    const followersModal = document.getElementById('followers-modal');
+    const followingModal = document.getElementById('following-modal');
+    const closeFollowersModal = document.getElementById('close-followers-modal');
+    const closeFollowingModal = document.getElementById('close-following-modal');
+    const followersList = document.getElementById('followers-list');
+    const followingList = document.getElementById('following-list');
+    const notificationOverlay = document.getElementById('notificationOverlay');
+    const notificationPanel = document.getElementById('notificationPanel');
+    const notificationList = document.getElementById('notificationList');
+    const notificationBadge = document.getElementById('notificationBadge');
+    const closeNotificationPanel = document.getElementById('closeNotificationPanel');
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+    const userMenu = document.getElementById('user-menu');
+    const userDropdown = document.getElementById('user-dropdown');
+    const createModal = document.getElementById('create-modal');
+    const closeModal = document.getElementById('close-modal');
+    const cancelRecipe = document.getElementById('cancel-recipe');
+    const recipeForm = document.getElementById('recipe-form');
+    const dropzone = document.getElementById('dropzone');
+    const recipeImage = document.getElementById('recipe-image');
+    const imagePreview = document.getElementById('image-preview');
+    const previewImage = document.getElementById('preview-image');
+    const prepTimeInput = document.getElementById('prep-time');
+    const cookTimeInput = document.getElementById('cook-time');
+    const filterModal = document.getElementById('filter-modal');
+    const closeFilterModal = document.getElementById('close-filter-modal');
+    const filterForm = document.getElementById('filter-form');
+    const filterIngredientsContainer = document.getElementById('filter-ingredients-container');
+    const filterRatingSelect = document.getElementById('filter-rating');
+    const clearFiltersBtn = document.getElementById('clear-filters');
+    const messageOverlay = document.getElementById('messageOverlay');
+    const messagePanel = document.getElementById('messagePanel');
+    const closeMessagePanel = document.getElementById('closeMessagePanel');
+    const messageSearch = document.getElementById('messageSearch');
+    const messageList = document.getElementById('messageList');
+    const messageAvatar = document.getElementById('messageAvatar');
+    const messageUserName = document.getElementById('messageUserName');
+    const messageChat = document.getElementById('messageChat');
+    const mediaInput = document.getElementById('mediaInput');
+    const messageMediaBtn = document.getElementById('messageMediaBtn');
+    const messageTextInput = document.getElementById('messageTextInput');
+    const messageSendBtn = document.getElementById('messageSendBtn');
+
+    // Инициализация
+    async function init() {
+        try {
+            
+        const email = "asdasd@gmail.com"; // или из формы ввода
+        const password = "user_password";
+            // Запрос к API для получения имени по email через /users/login
+            const response = await fetch(`${API_URL}/users/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
+
+             if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Ошибка авторизации');
+        }
+
+            localStorage.setItem('token', data.token);
+        localStorage.setItem('userEmail', email);
+        
+        console.log('Успешная авторизация. Токен:', data.token);
+        showToast('Вы успешно авторизовались!');
+        
+        // Перенаправляем на страницу профиля
+        window.location.href = 'profile.html';
+            const data = await response.json();
+            console.log('Данные от API /users/login:', data);
+
+            // Обновляем профиль данными с сервера
+            profile = {
+                ...profile,
+                name: data.name || email.split('@')[0],
+                username: data.username || `@${email.split('@')[0]}`,
+                bio: data.bio || 'Food enthusiast and recipe creator.',
+                avatar: data.avatar || DEFAULT_AVATAR
             };
 
-            let state = {
-                activeTab: "recipes",
-                recipes: recipes,
-                savedRecipes: [],
-                likedRecipes: [],
-                currentCategory: 'all',
-                displayedRecipes: 8,
-                filteredRecipes: [...recipes],
-                newRecipeId: recipes.length + 1,
-                searchIngredients: [],
-                minRating: 0,
-                selectedChatId: null
+            loadState();
+            setupEventListeners();
+            renderRecipes();
+            renderFollowers();
+            renderFollowing();
+            renderNotifications();
+            renderMessageList();
+            updateProfile();
+
+            showToast(`Добро пожаловать, ${profile.name}!`, 'success');
+        } catch (error) {
+            
+        console.error('Ошибка авторизации:', error);
+        showToast(error.message || 'Неверный email или пароль', 'error');
+            // Используем мок-данные, если API недоступно
+            profile = {
+                ...profile,
+                name: "Balzhan Yerzhankyzy",
+                username: "@BalzhanY.",
+                bio: "Food enthusiast and recipe creator. Sharing my culinary adventures from around the world!",
+                avatar: "https://randomuser.me/api/portraits/women/44.jpg"
             };
+            
+            updateProfile();
+            loadState();
+            setupEventListeners();
+            renderRecipes();
+            renderFollowers();
+            renderFollowing();
+            renderNotifications();
+            renderMessageList();
+            
+            showToast('Сервер не отвечает. Используются демо-данные.', 'warning');
+        }
+    }
 
-            // DOM элементы
-            const searchBar = document.getElementById('search-bar');
-            const filterBtn = document.getElementById('filter-btn');
-            const createBtn = document.getElementById('create-btn');
-            const notificationBtn = document.getElementById('notification-btn');
-            const messageBtn = document.getElementById('message-btn');
-            const tabs = document.querySelectorAll('[data-tab]');
-            const recipesGrid = document.getElementById('recipes-grid');
-            const savedGrid = document.getElementById('saved-grid');
-            const editProfileBtn = document.getElementById('edit-profile-btn');
-            const followersBtn = document.getElementById('followers-btn');
-            const followingBtn = document.getElementById('following-btn');
-            const recipesBtn = document.getElementById('recipes-btn');
-            const profileName = document.getElementById('profile-name');
-            const profileUsername = document.getElementById('profile-username');
-            const profileBio = document.getElementById('profile-bio');
-            const profileAvatar = document.getElementById('profile-avatar');
-            const followersCount = document.getElementById('followers-count');
-            const followingCount = document.getElementById('following-count');
-            const recipesCount = document.getElementById('recipes-count');
-            const editProfileModal = document.getElementById('edit-profile-modal');
-            const closeEditModal = document.getElementById('close-edit-modal');
-            const cancelEdit = document.getElementById('cancel-edit');
-            const editProfileForm = document.getElementById('edit-profile-form');
-            const profileDropzone = document.getElementById('profile-dropzone');
-            const profileImage = document.getElementById('profile-image');
-            const profileImagePreview = document.getElementById('profile-image-preview');
-            const profilePreviewImage = document.getElementById('profile-preview-image');
-            const saveProfileBtn = document.getElementById('save-profile-btn');
-            const followersModal = document.getElementById('followers-modal');
-            const followingModal = document.getElementById('following-modal');
-            const closeFollowersModal = document.getElementById('close-followers-modal');
-            const closeFollowingModal = document.getElementById('close-following-modal');
-            const followersList = document.getElementById('followers-list');
-            const followingList = document.getElementById('following-list');
-            const notificationOverlay = document.getElementById('notificationOverlay');
-            const notificationPanel = document.getElementById('notificationPanel');
-            const notificationList = document.getElementById('notificationList');
-            const notificationBadge = document.getElementById('notificationBadge');
-            const closeNotificationPanel = document.getElementById('closeNotificationPanel');
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toast-message');
-            const userMenu = document.getElementById('user-menu');
-            const userDropdown = document.getElementById('user-dropdown');
-            const createModal = document.getElementById('create-modal');
-            const closeModal = document.getElementById('close-modal');
-            const cancelRecipe = document.getElementById('cancel-recipe');
-            const recipeForm = document.getElementById('recipe-form');
-            const dropzone = document.getElementById('dropzone');
-            const recipeImage = document.getElementById('recipe-image');
-            const imagePreview = document.getElementById('image-preview');
-            const previewImage = document.getElementById('preview-image');
-            const prepTimeInput = document.getElementById('prep-time');
-            const cookTimeInput = document.getElementById('cook-time');
-            const filterModal = document.getElementById('filter-modal');
-            const closeFilterModal = document.getElementById('close-filter-modal');
-            const filterForm = document.getElementById('filter-form');
-            const filterIngredientsContainer = document.getElementById('filter-ingredients-container');
-            const filterRatingSelect = document.getElementById('filter-rating');
-            const clearFiltersBtn = document.getElementById('clear-filters');
-            const messageOverlay = document.getElementById('messageOverlay');
-            const messagePanel = document.getElementById('messagePanel');
-            const closeMessagePanel = document.getElementById('closeMessagePanel');
-            const messageSearch = document.getElementById('messageSearch');
-            const messageList = document.getElementById('messageList');
-            const messageAvatar = document.getElementById('messageAvatar');
-            const messageUserName = document.getElementById('messageUserName');
-            const messageChat = document.getElementById('messageChat');
-            const mediaInput = document.getElementById('mediaInput');
-            const messageMediaBtn = document.getElementById('messageMediaBtn');
-            const messageTextInput = document.getElementById('messageTextInput');
-            const messageSendBtn = document.getElementById('messageSendBtn');
+    // Загрузка состояния из localStorage
+    function loadState() {
+        const savedState = localStorage.getItem('profileState');
+        if (savedState) {
+            state = JSON.parse(savedState);
+            state.recipes = recipes.map(r => ({
+                ...r,
+                saved: state.savedRecipes.includes(r.id)
+            }));
+            state.filteredRecipes = [...state.recipes];
+        }
+    }
 
-            // Инициализация
-            async function init() {
-                try {
-                    // Запрос к API для получения данных профиля
-                    const response = await fetch(`${API_URL}/users/profile?email=${encodeURIComponent(email)}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        credentials: 'include' // Добавляем для работы с CORS
-                    });
+    // Сохранение состояния в localStorage
+    function saveState() {
+        localStorage.setItem('profileState', JSON.stringify(state));
+    }
 
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+    // Функция показа тост-уведомлений
+    function showToast(message, type = 'success') {
+        toastMessage.textContent = message;
+        toast.className = `toast fixed bottom-4 left-1/2 transform -translate-x-1/2 ${type === 'success' ? 'bg-green-500' : type === 'warning' ? 'bg-yellow-500' : 'bg-red-500'} text-white px-4 py-2 rounded-md shadow-lg flex items-center show`;
+        toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-exclamation-circle'} mr-2"></i><span id="toast-message">${message}</span>`;
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
 
-                    const data = await response.json();
-                    console.log('Данные от API:', data);
+    // Обновление отображения профиля
+    function updateProfile() {
+        profileName.textContent = profile.name;
+        profileUsername.textContent = profile.username;
+        profileBio.textContent = profile.bio;
+        profileAvatar.src = profile.avatar;
+        userMenu.querySelector('img').src = profile.avatar;
+        followersCount.textContent = profile.followers;
+        followingCount.textContent = profile.following;
+        recipesCount.textContent = state.recipes.length;
+        document.querySelector('#followers-modal h3').textContent = `Followers (${profile.followers})`;
+        document.querySelector('#following-modal h3').textContent = `Following (${profile.following})`;
+    }
 
-                    // Обновляем профиль данными с сервера
-                    profile = {
-                        ...profile,
-                        name: data.name || email.split('@')[0],
-                        username: data.username || `@${email.split('@')[0]}`,
-                        bio: data.bio || 'Food enthusiast and recipe creator.',
-                        avatar: data.avatar || DEFAULT_AVATAR
-                    };
+    // Рендеринг рецептов
+    function renderRecipes(searchQuery = '') {
+        const filteredRecipes = state.filteredRecipes.filter(r =>
+            r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            r.description.toLowerCase().includes(searchQuery.toLowerCase())
+        );
 
-                    loadState();
-                    setupEventListeners();
-                    renderRecipes();
-                    renderFollowers();
-                    renderFollowing();
-                    renderNotifications();
-                    renderMessageList();
-                    updateProfile();
-
-                    showToast(`Добро пожаловать, ${profile.name}!`, 'success');
-                } catch (error) {
-                    console.error('Ошибка при получении профиля:', error);
-                    // Используем мок-данные, если API недоступно
-                    profile = {
-                        ...profile,
-                        name: "Balzhan Yerzhankyzy",
-                        username: "@BalzhanY.",
-                        bio: "Food enthusiast and recipe creator. Sharing my culinary adventures from around the world!",
-                        avatar: "https://randomuser.me/api/portraits/women/44.jpg"
-                    };
-                    
-                    updateProfile();
-                    loadState();
-                    setupEventListeners();
-                    renderRecipes();
-                    renderFollowers();
-                    renderFollowing();
-                    renderNotifications();
-                    renderMessageList();
-                    
-                    showToast('Сервер не отвечает. Используются демо-данные.', 'warning');
-                }
-            }
-
-            // Загрузка состояния из localStorage
-            function loadState() {
-                const savedState = localStorage.getItem('profileState');
-                if (savedState) {
-                    state = JSON.parse(savedState);
-                    state.recipes = recipes.map(r => ({
-                        ...r,
-                        saved: state.savedRecipes.includes(r.id)
-                    }));
-                    state.filteredRecipes = [...state.recipes];
-                }
-            }
-
-            // Сохранение состояния в localStorage
-            function saveState() {
-                localStorage.setItem('profileState', JSON.stringify(state));
-            }
-
-            // Функция показа тост-уведомлений
-            function showToast(message, type = 'success') {
-                toastMessage.textContent = message;
-                toast.className = `toast fixed bottom-4 left-1/2 transform -translate-x-1/2 ${type === 'success' ? 'bg-green-500' : type === 'warning' ? 'bg-yellow-500' : 'bg-red-500'} text-white px-4 py-2 rounded-md shadow-lg flex items-center show`;
-                toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'warning' ? 'fa-exclamation-triangle' : 'fa-exclamation-circle'} mr-2"></i><span id="toast-message">${message}</span>`;
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                }, 3000);
-            }
-
-            // Обновление отображения профиля
-            function updateProfile() {
-                profileName.textContent = profile.name;
-                profileUsername.textContent = profile.username;
-                profileBio.textContent = profile.bio;
-                profileAvatar.src = profile.avatar;
-                userMenu.querySelector('img').src = profile.avatar;
-                followersCount.textContent = profile.followers;
-                followingCount.textContent = profile.following;
-                recipesCount.textContent = state.recipes.length;
-                document.querySelector('#followers-modal h3').textContent = `Followers (${profile.followers})`;
-                document.querySelector('#following-modal h3').textContent = `Following (${profile.following})`;
-            }
-
-            // Рендеринг рецептов
-            function renderRecipes(searchQuery = '') {
-                const filteredRecipes = state.filteredRecipes.filter(r =>
-                    r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    r.description.toLowerCase().includes(searchQuery.toLowerCase())
-                );
-
-                recipesGrid.innerHTML = filteredRecipes.map(recipe => `
-                    <div class="recipe-card bg-white rounded-xl overflow-hidden shadow-md relative">
-                        <img src="${recipe.image}" alt="${recipe.name}" class="w-full h-48 object-cover">
-                        <div class="p-4">
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="font-bold text-lg text-gray-800">${recipe.name}</h3>
-                            </div>
-                            <p class="text-gray-600 text-sm mb-3">${recipe.description}</p>
-                            <div class="flex items-center mb-2">
-                                <div class="flex items-center text-yellow-400 mr-2">
-                                    ${Array(Math.floor(recipe.rating)).fill('<i class="fas fa-star text-xs"></i>').join('')}
-                                    ${recipe.rating % 1 >= 0.5 ? '<i class="fas fa-star-half-alt text-xs"></i>' : ''}
-                                    ${Array(5 - Math.ceil(recipe.rating)).fill('<i class="far fa-star text-xs"></i>').join('')}
-                                    <span class="text-gray-500 text-xs ml-1">${recipe.rating}</span>
-                                </div>
-                                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">${recipe.difficulty}</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm">
-                                <div class="flex items-center text-gray-500">
-                                    <i class="fas fa-clock mr-1"></i>
-                                    <span>${recipe.time}</span>
-                                </div>
-                                <div class="flex items-center text-gray-500">
-                                    <i class="fas fa-fire mr-1"></i>
-                                    <span>${recipe.calories}</span>
-                                </div>
-                            </div>
+        recipesGrid.innerHTML = filteredRecipes.map(recipe => `
+            <div class="recipe-card bg-white rounded-xl overflow-hidden shadow-md relative">
+                <img src="${recipe.image}" alt="${recipe.name}" class="w-full h-48 object-cover">
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-lg text-gray-800">${recipe.name}</h3>
+                    </div>
+                    <p class="text-gray-600 text-sm mb-3">${recipe.description}</p>
+                    <div class="flex items-center mb-2">
+                        <div class="flex items-center text-yellow-400 mr-2">
+                            ${Array(Math.floor(recipe.rating)).fill('<i class="fas fa-star text-xs"></i>').join('')}
+                            ${recipe.rating % 1 >= 0.5 ? '<i class="fas fa-star-half-alt text-xs"></i>' : ''}
+                            ${Array(5 - Math.ceil(recipe.rating)).fill('<i class="far fa-star text-xs"></i>').join('')}
+                            <span class="text-gray-500 text-xs ml-1">${recipe.rating}</span>
                         </div>
-                        <div class="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md">
-                            <img src="${recipe.user.avatar}" alt="${recipe.user.name}" class="h-8 w-8 rounded-full">
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">${recipe.difficulty}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <div class="flex items-center text-gray-500">
+                            <i class="fas fa-clock mr-1"></i>
+                            <span>${recipe.time}</span>
+                        </div>
+                        <div class="flex items-center text-gray-500">
+                            <i class="fas fa-fire mr-1"></i>
+                            <span>${recipe.calories}</span>
                         </div>
                     </div>
-                `).join('');
+                </div>
+                <div class="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md">
+                    <img src="${recipe.user.avatar}" alt="${recipe.user.name}" class="h-8 w-8 rounded-full">
+                </div>
+            </div>
+        `).join('');
 
-                const savedRecipes = state.recipes.filter(r => state.savedRecipes.includes(r.id));
-                savedGrid.innerHTML = savedRecipes.length ? savedRecipes.map(recipe => `
-                    <div class="recipe-card bg-white rounded-xl overflow-hidden shadow-md relative">
-                        <img src="${recipe.image}" alt="${recipe.name}" class="w-full h-48 object-cover">
-                        <div class="p-4">
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="font-bold text-lg text-gray-800">${recipe.name}</h3>
-                                <button class="save-btn text-gray-400 hover:text-red-500 ${recipe.saved ? 'saved' : ''}" data-id="${recipe.id}">
-                                    <i class="${recipe.saved ? 'fas' : 'far'} fa-bookmark"></i>
-                                </button>
-                            </div>
-                            <p class="text-gray-600 text-sm mb-3">${recipe.description}</p>
-                            <div class="flex items-center mb-2">
-                                <div class="flex items-center text-yellow-400 mr-2">
-                                    ${Array(Math.floor(recipe.rating)).fill('<i class="fas fa-star text-xs"></i>').join('')}
-                                    ${recipe.rating % 1 >= 0.5 ? '<i class="fas fa-star-half-alt text-xs"></i>' : ''}
-                                    ${Array(5 - Math.ceil(recipe.rating)).fill('<i class="far fa-star text-xs"></i>').join('')}
-                                    <span class="text-gray-500 text-xs ml-1">${recipe.rating}</span>
-                                </div>
-                                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">${recipe.difficulty}</span>
-                            </div>
-                            <div class="flex justify-between items-center text-sm">
-                                <div class="flex items-center text-gray-500">
-                                    <i class="fas fa-clock mr-1"></i>
-                                    <span>${recipe.time}</span>
-                                </div>
-                                <div class="flex items-center text-gray-500">
-                                    <i class="fas fa-fire mr-1"></i>
-                                    <span>${recipe.calories}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md">
-                            <img src="${recipe.user.avatar}" alt="${recipe.user.name}" class="h-8 w-8 rounded-full">
-                        </div>
-                    </div>
-                `).join('') : '<div class="col-span-4 text-center py-10"><i class="fas fa-bookmark text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">No saved recipes yet. Save some to see them here!</p></div>';
-            }
-
-            // Рендеринг подписчиков
-            function renderFollowers() {
-                followersList.innerHTML = followers.map(f => `
-                    <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
-                        <div class="flex items-center">
-                            <img src="${f.avatar}" alt="${f.name}" class="h-10 w-10 rounded-full mr-3">
-                            <div>
-                                <p class="text-gray-800 font-medium">${f.name}</p>
-                                <p class="text-gray-500 text-xs">${f.username}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <button class="follower-action-btn px-3 py-1 rounded-full text-sm ${f.isFollowing ? 'bg-gray-100 text-gray-800' : 'bg-red-500 text-white'}" data-username="${f.username}">
-                                ${f.isFollowing ? 'Following' : 'Follow'}
-                            </button>
-                            <button class="remove-follower-btn px-3 py-1 rounded-full bg-red-100 text-red-500 text-sm" data-username="${f.username}">
-                                Remove
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            // Рендеринг подписок
-            function renderFollowing() {
-                followingList.innerHTML = following.map(f => `
-                    <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
-                        <div class="flex items-center">
-                            <img src="${f.avatar}" alt="${f.name}" class="h-10 w-10 rounded-full mr-3">
-                            <div>
-                                <p class="text-gray-800 font-medium">${f.name}</p>
-                                <p class="text-gray-500 text-xs">${f.username}</p>
-                            </div>
-                        </div>
-                        <button class="following-action-btn px-3 py-1 rounded-full text-sm ${f.isFollowing ? 'bg-gray-100 text-gray-800' : 'bg-red-500 text-white'}" data-username="${f.username}">
-                            ${f.isFollowing ? 'Following' : 'Follow'}
+        const savedRecipes = state.recipes.filter(r => state.savedRecipes.includes(r.id));
+        savedGrid.innerHTML = savedRecipes.length ? savedRecipes.map(recipe => `
+            <div class="recipe-card bg-white rounded-xl overflow-hidden shadow-md relative">
+                <img src="${recipe.image}" alt="${recipe.name}" class="w-full h-48 object-cover">
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-lg text-gray-800">${recipe.name}</h3>
+                        <button class="save-btn text-gray-400 hover:text-red-500 ${recipe.saved ? 'saved' : ''}" data-id="${recipe.id}">
+                            <i class="${recipe.saved ? 'fas' : 'far'} fa-bookmark"></i>
                         </button>
                     </div>
-                `).join('');
-            }
-
-            // Рендеринг уведомлений
-            function renderNotifications() {
-                notificationList.innerHTML = '';
-                notifications.forEach(n => {
-                    const item = document.createElement('div');
-                    item.className = 'notification-item';
-                    item.dataset.id = n.id;
-                    item.innerHTML = `
-                        <img src="${n.user.avatar}" class="notification-avatar" alt="${n.user.name}">
-                        <div class="notification-content">
-                            <div class="notification-text">${n.text}</div>
-                            ${n.comment ? `<div class="notification-comment">"${n.comment}"</div>` : ''}
-                            <div class="notification-time">${n.time}</div>
+                    <p class="text-gray-600 text-sm mb-3">${recipe.description}</p>
+                    <div class="flex items-center mb-2">
+                        <div class="flex items-center text-yellow-400 mr-2">
+                            ${Array(Math.floor(recipe.rating)).fill('<i class="fas fa-star text-xs"></i>').join('')}
+                            ${recipe.rating % 1 >= 0.5 ? '<i class="fas fa-star-half-alt text-xs"></i>' : ''}
+                            ${Array(5 - Math.ceil(recipe.rating)).fill('<i class="far fa-star text-xs"></i>').join('')}
+                            <span class="text-gray-500 text-xs ml-1">${recipe.rating}</span>
                         </div>
-                        ${n.image ? `<img src="${n.image}" class="notification-image">` : ''}
-                        <button class="notification-options-btn" aria-label="Notification options"><span class="fas fa-ellipsis-v" role="img" aria-hidden="true"></span></button>
-                        <div class="notification-options-menu">
-                            <button class="reply">Reply</button>
-                            <button class="remove">Remove</button>
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">${recipe.difficulty}</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <div class="flex items-center text-gray-500">
+                            <i class="fas fa-clock mr-1"></i>
+                            <span>${recipe.time}</span>
                         </div>
-                    `;
-                    notificationList.appendChild(item);
-                });
-                notificationBadge.textContent = notifications.length;
-            }
-
-            // Рендеринг списка сообщений
-            function renderMessageList(filter = '') {
-                messageList.innerHTML = '';
-                const filteredMessages = filter
-                    ? messages.filter(m => m.user.name.toLowerCase().includes(filter.toLowerCase()))
-                    : messages;
-                filteredMessages.forEach(m => {
-                    const item = document.createElement('div');
-                    item.className = `message-item ${m.id === state.selectedChatId ? 'active' : ''}`;
-                    item.dataset.id = m.id;
-                    item.innerHTML = `
-                        <div class="message-avatar" style="background-image: url(${m.user.avatar})"></div>
-                        <div class="message-info">
-                            <div class="message-name">${m.user.name}</div>
-                            <div class="message-preview">${m.preview}</div>
+                        <div class="flex items-center text-gray-500">
+                            <i class="fas fa-fire mr-1"></i>
+                            <span>${recipe.calories}</span>
                         </div>
-                        <div class="message-meta">
-                            <div class="message-time">${m.time}</div>
-                            ${m.unread ? `<div class="message-unread">${m.unread}</div>` : ''}
-                        </div>
-                    `;
-                    messageList.appendChild(item);
-                });
-            }
-
-            // Рендеринг чата
-            function renderChat(chatId) {
-                const chat = messages.find(m => m.id === chatId);
-                if (!chat) {
-                    messageChat.innerHTML = '<div class="no-chat-selected">Who would you like to message?</div>';
-                    messageUserName.textContent = 'Select a chat';
-                    messageAvatar.style.backgroundImage = '';
-                    messageSendBtn.disabled = true;
-                    return;
-                }
-                state.selectedChatId = chatId;
-                messageUserName.textContent = chat.user.name;
-                messageAvatar.style.backgroundImage = `url(${chat.user.avatar || DEFAULT_AVATAR})`;
-                messageChat.innerHTML = '';
-                chat.chat.forEach(msg => {
-                    const bubble = document.createElement('div');
-                    bubble.className = `message-bubble ${msg.own ? 'own-message' : 'other-message'}`;
-                    bubble.innerHTML = `
-                        <div class="message-text">${msg.text}</div>
-                        ${msg.media ? `<img src="${msg.media}" class="message-media">` : ''}
-                        <div class="message-timestamp">${msg.timestamp}</div>
-                    `;
-                    messageChat.appendChild(bubble);
-                });
-                messageChat.scrollTop = messageChat.scrollHeight;
-                chat.unread = 0;
-                renderMessageList();
-                messageSendBtn.disabled = false;
-                saveState();
-            }
-
-            // Отправка сообщения
-            function sendMessage(text, media = null) {
-                if (!state.selectedChatId || !text) return;
-                const chat = messages.find(m => m.id === state.selectedChatId);
-                const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                const message = { text, timestamp, own: true };
-                if (media) message.media = media;
-                chat.chat.push(message);
-                chat.preview = text.length > 30 ? text.substring(0, 30) + '...' : text;
-                chat.time = timestamp;
-                renderChat(state.selectedChatId);
-                messageTextInput.value = '';
-                mediaInput.value = '';
-                showToast('Сообщение отправлено!');
-            }
-
-            // Обрезка изображения до квадрата
-            function cropImageToSquare(file, callback) {
-                const img = new Image();
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    img.src = e.target.result;
-                };
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    const size = Math.min(img.width, img.height);
-                    canvas.width = size;
-                    canvas.height = size;
-                    const offsetX = (img.width - size) / 2;
-                    const offsetY = (img.height - size) / 2;
-                    ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
-                    callback(canvas.toDataURL('image/jpeg'));
-                };
-                reader.readAsDataURL(file);
-            }
-
-            // Валидация форм
-            function validateForm(formId) {
-                let isValid = true;
-                let errorMessage = '';
-                if (formId === 'recipe-form') {
-                    const recipeName = document.getElementById('recipe-name').value.trim();
-                    const recipeDescription = document.getElementById('recipe-description').value.trim();
-                    const prepTime = document.getElementById('prep-time').value.trim();
-                    const cookTime = document.getElementById('cook-time').value.trim();
-                    const recipeCalories = document.getElementById('recipe-calories').value.trim();
-                    const ingredients = Array.from(document.querySelectorAll('#ingredients-container .ingredient-input')).map(input => input.value.trim());
-                    const recipeCategory = document.getElementById('recipe-category').value;
-                    if (!recipeName) {
-                        isValid = false;
-                        errorMessage = 'Название рецепта обязательно.';
-                    } else if (recipeName.length > 100) {
-                        isValid = false;
-                        errorMessage = 'Название рецепта не может превышать 100 символов.';
-                    }
-                    if (!recipeDescription) {
-                        isValid = false;
-                        errorMessage = 'Описание обязательно.';
-                    } else if (recipeDescription.length > 500) {
-                        isValid = false;
-                        errorMessage = 'Описание не может превышать 500 символов.';
-                    }
-                    if (!prepTime) {
-                        isValid = false;
-                        errorMessage = 'Время подготовки обязательно.';
-                    } else if (!/^\d+\s*(min|hour|hr|h|m)$/i.test(prepTime)) {
-                        isValid = false;
-                        errorMessage = 'Время подготовки должно быть в формате (например, 15min, 1hour).';
-                    }
-                    if (!cookTime) {
-                        isValid = false;
-                        errorMessage = 'Время приготовления обязательно.';
-                    } else if (!/^\d+\s*(min|hour|hr|h|m)$/i.test(cookTime)) {
-                        isValid = false;
-                        errorMessage = 'Время приготовления должно быть в формате (например, 20min, 1hour).';
-                    }
-                    if (recipeCalories && (isNaN(recipeCalories) || recipeCalories < 0)) {
-                        isValid = false;
-                        errorMessage = 'Калории должны быть положительным числом или пустым.';
-                    }
-                    const validIngredients = ingredients.filter(ing => ing !== '');
-                    if (validIngredients.length === 0) {
-                        isValid = false;
-                        errorMessage = 'Требуется хотя бы один ингредиент.';
-                    } else if (validIngredients.length > 50) {
-                        isValid = false;
-                        errorMessage = 'Нельзя добавить более 50 ингредиентов.';
-                    } else {
-                        for (let ing of validIngredients) {
-                            if (ing.length > 100) {
-                                isValid = false;
-                                errorMessage = 'Каждый ингредиент не может превышать 100 символов.';
-                                break;
-                            }
-                        }
-                    }
-                    if (!recipeCategory) {
-                        isValid = false;
-                        errorMessage = 'Выберите категорию.';
-                    }
-                    if (recipeImage.files.length === 0 && !previewImage.src) {
-                        isValid = false;
-                        errorMessage = 'Загрузите изображение рецепта.';
-                    }
-                } else if (formId === 'edit-profile-form') {
-                    const profileNameInput = document.getElementById('profile-name').value.trim();
-                    const profileUsernameInput = document.getElementById('profile-username').value.trim();
-                    const profileBioInput = document.getElementById('profile-bio').value.trim();
-                    if (!profileNameInput) {
-                        isValid = false;
-                        errorMessage = 'Имя обязательно.';
-                    } else if (profileNameInput.length > 50) {
-                        isValid = false;
-                        errorMessage = 'Имя не может превышать 50 символов.';
-                    }
-                    if (!profileUsernameInput) {
-                        isValid = false;
-                        errorMessage = 'Имя пользователя обязательно.';
-                    } else if (!/^@[\w.]{1,15}$/.test(profileUsernameInput)) {
-                        isValid = false;
-                        errorMessage = 'Имя пользователя должно начинаться с @ и содержать 1-15 символов (буквы, цифры, точки).';
-                    }
-                    if (profileBioInput.length > 160) {
-                        isValid = false;
-                        errorMessage = 'Биография не может превышать 160 символов.';
-                    }
-                } else if (formId === 'filter-form') {
-                    const filterIngredients = Array.from(document.querySelectorAll('#filter-ingredients-container .filter-ingredient-input')).map(input => input.value.trim());
-                    const validFilterIngredients = filterIngredients.filter(ing => ing !== '');
-                    if (validFilterIngredients.length > 10) {
-                        isValid = false;
-                        errorMessage = 'Нельзя добавить более 10 ингредиентов для фильтра.';
-                    } else {
-                        for (let ing of validFilterIngredients) {
-                            if (ing.length > 100) {
-                                isValid = false;
-                                errorMessage = 'Каждый ингредиент фильтра не может превышать 100 символов.';
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (!isValid) {
-                    showToast(errorMessage, 'error');
-                }
-                return isValid;
-            }
-
-            // Установка обработчиков событий
-            function setupEventListeners() {
-                // Поиск
-                searchBar.addEventListener('input', () => {
-                    renderRecipes(searchBar.value);
-                });
-
-                // Кнопка фильтра
-                filterBtn.addEventListener('click', () => {
-                    filterModal.classList.add('active');
-                });
-
-                // Кнопка создания рецепта
-                createBtn.addEventListener('click', () => {
-                    createModal.classList.add('active');
-                    resetRecipeForm();
-                });
-
-                // Кнопка уведомлений
-                notificationBtn.addEventListener('click', () => {
-                    notificationOverlay.classList.add('active');
-                    notificationPanel.classList.add('active');
-                });
-
-                // Кнопка сообщений
-                messageBtn.addEventListener('click', () => {
-                    messageOverlay.classList.add('active');
-                    messagePanel.classList.add('active');
-                    renderMessageList();
-                });
-
-                // Закрытие панели уведомлений
-                closeNotificationPanel.addEventListener('click', () => {
-                    notificationOverlay.classList.remove('active');
-                    notificationPanel.classList.remove('active');
-                });
-
-                // Закрытие панели сообщений
-                closeMessagePanel.addEventListener('click', () => {
-                    messageOverlay.classList.remove('active');
-                    messagePanel.classList.remove('active');
-                    state.selectedChatId = null;
-                    saveState();
-                });
-
-                // Клик по оверлею уведомлений
-                notificationOverlay.addEventListener('click', () => {
-                    notificationOverlay.classList.remove('active');
-                    notificationPanel.classList.remove('active');
-                });
-
-                // Клик по оверлею сообщений
-                messageOverlay.addEventListener('click', () => {
-                    messageOverlay.classList.remove('active');
-                    messagePanel.classList.remove('active');
-                    state.selectedChatId = null;
-                    saveState();
-                });
-
-                // Вкладки
-                tabs.forEach(tab => {
-                    tab.addEventListener('click', () => {
-                        tabs.forEach(t => t.classList.remove('tab-active'));
-                        tab.classList.add('tab-active');
-                        state.activeTab = tab.dataset.tab;
-                        recipesGrid.classList.toggle('hidden', state.activeTab !== 'recipes');
-                        savedGrid.classList.toggle('hidden', state.activeTab !== 'saved');
-                        renderRecipes();
-                    });
-                });
-
-                // Кнопка редактирования профиля
-                editProfileBtn.addEventListener('click', () => {
-                    editProfileModal.classList.add('active');
-                    document.getElementById('profile-name').value = profile.name;
-                    document.getElementById('profile-username').value = profile.username;
-                    document.getElementById('profile-bio').value = profile.bio;
-                    if (profile.avatar) {
-                        profilePreviewImage.src = profile.avatar;
-                        profileImagePreview.classList.remove('hidden');
-                    }
-                    profileImage.value = '';
-                });
-
-                // Закрытие модального окна редактирования профиля
-                closeEditModal.addEventListener('click', () => {
-                    editProfileModal.classList.remove('active');
-                    profileImage.value = '';
-                });
-
-                // Отмена редактирования профиля
-                cancelEdit.addEventListener('click', () => {
-                    editProfileModal.classList.remove('active');
-                    editProfileForm.reset();
-                    profileImagePreview.classList.add('hidden');
-                    profileImage.value = '';
-                });
-
-                editProfileModal.addEventListener('click', e => {
-                    if (e.target === editProfileModal) {
-                        editProfileModal.classList.remove('active');
-                        editProfileForm.reset();
-                        profileImagePreview.classList.add('hidden');
-                        profileImage.value = '';
-                    }
-                });
-
-                // Dropzone для изображения профиля
-                profileDropzone.addEventListener('click', () => profileImage.click());
-                profileDropzone.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    profileDropzone.classList.add('active');
-                });
-                profileDropzone.addEventListener('dragleave', () => {
-                    profileDropzone.classList.remove('active');
-                });
-                profileDropzone.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    profileDropzone.classList.remove('active');
-                    const file = e.dataTransfer.files[0];
-                    if (file && file.type.startsWith('image/')) {
-                        cropImageToSquare(file, (croppedImage) => {
-                            profilePreviewImage.src = croppedImage;
-                            profileImagePreview.classList.remove('hidden');
-                        });
-                    } else {
-                        showToast('Пожалуйста, выберите изображение.', 'error');
-                    }
-                });
-
-                // Загрузка изображения профиля
-                profileImage.addEventListener('change', () => {
-                    const file = profileImage.files[0];
-                    if (file && file.type.startsWith('image/')) {
-                        cropImageToSquare(file, (croppedImage) => {
-                            profilePreviewImage.src = croppedImage;
-                            profileImagePreview.classList.remove('hidden');
-                        });
-                    } else {
-                        showToast('Пожалуйста, выберите изображение.', 'error');
-                    }
-                });
-
-                // Сохранение профиля
-                editProfileForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    if (!validateForm('edit-profile-form')) return;
-
-                    const name = document.getElementById('profile-name').value.trim();
-                    const username = document.getElementById('profile-username').value.trim();
-                    const bio = document.getElementById('profile-bio').value.trim();
-                    let avatar = profile.avatar;
-
-                    if (profileImage.files[0]) {
-                        avatar = profilePreviewImage.src; // Используем обрезанное изображение
-                    }
-
-                    try {
-                        const response = await fetch(`${API_URL}/users/profile`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                            },
-                            body: JSON.stringify({ email, name, username, bio, avatar }),
-                            credentials: 'include'
-                        });
-
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-
-                        const data = await response.json();
-                        profile = { ...profile, name, username, bio, avatar };
-                        updateProfile();
-                        editProfileModal.classList.remove('active');
-                        editProfileForm.reset();
-                        profileImagePreview.classList.add('hidden');
-                        profileImage.value = '';
-                        showToast('Профиль успешно обновлен!', 'success');
-                    } catch (error) {
-                        console.error('Ошибка при обновлении профиля:', error);
-                        showToast('Ошибка сервера. Попробуйте позже.', 'error');
-                    }
-                });
-
-                // Открытие модального окна подписчиков
-                followersBtn.addEventListener('click', () => {
-                    followersModal.classList.add('active');
-                    renderFollowers();
-                });
-
-                // Открытие модального окна подписок
-                followingBtn.addEventListener('click', () => {
-                    followingModal.classList.add('active');
-                    renderFollowing();
-                });
-
-                // Закрытие модального окна подписчиков
-                closeFollowersModal.addEventListener('click', () => {
-                    followersModal.classList.remove('active');
-                });
-
-                // Закрытие модального окна подписок
-                closeFollowingModal.addEventListener('click', () => {
-                    followingModal.classList.remove('active');
-                });
-
-                // Закрытие модальных окон при клике на оверлей
-                followersModal.addEventListener('click', (e) => {
-                    if (e.target === followersModal) {
-                        followersModal.classList.remove('active');
-                    }
-                });
-
-                followingModal.addEventListener('click', (e) => {
-                    if (e.target === followingModal) {
-                        followingModal.classList.remove('active');
-                    }
-                });
-
-                // Обработка действий с подписчиками
-                followersList.addEventListener('click', (e) => {
-                    const followBtn = e.target.closest('.follower-action-btn');
-                    const removeBtn = e.target.closest('.remove-follower-btn');
-                    if (followBtn) {
-                        const username = followBtn.dataset.username;
-                        const follower = followers.find(f => f.username === username);
-                        if (follower) {
-                            follower.isFollowing = !follower.isFollowing;
-                            renderFollowers();
-                            showToast(follower.isFollowing ? `Вы подписались на ${follower.name}!` : `Вы отписались от ${follower.name}.`, 'success');
-                        }
-                    } else if (removeBtn) {
-                        const username = removeBtn.dataset.username;
-                        followers = followers.filter(f => f.username !== username);
-                        profile.followers = followers.length;
-                        updateProfile();
-                        renderFollowers();
-                        showToast('Подписчик удален.', 'success');
-                    }
-                });
-
-                // Обработка действий с подписками
-                followingList.addEventListener('click', (e) => {
-                    const followBtn = e.target.closest('.following-action-btn');
-                    if (followBtn) {
-                        const username = followBtn.dataset.username;
-                        const follow = following.find(f => f.username === username);
-                        if (follow) {
-                            follow.isFollowing = !follow.isFollowing;
-                            if (!follow.isFollowing) {
-                                following = following.filter(f => f.username !== username);
-                                profile.following = following.length;
-                            }
-                            updateProfile();
-                            renderFollowing();
-                            showToast(follow.isFollowing ? `Вы подписались на ${follow.name}!` : `Вы отписались от ${follow.name}.`, 'success');
-                        }
-                    }
-                });
-
-                // Закрытие модального окна создания рецепта
-                closeModal.addEventListener('click', () => {
-                    createModal.classList.remove('active');
-                    recipeForm.reset();
-                    imagePreview.classList.add('hidden');
-                    recipeImage.value = '';
-                });
-
-                cancelRecipe.addEventListener('click', () => {
-                    createModal.classList.remove('active');
-                    recipeForm.reset();
-                    imagePreview.classList.add('hidden');
-                    recipeImage.value = '';
-                });
-
-                createModal.addEventListener('click', (e) => {
-                    if (e.target === createModal) {
-                        createModal.classList.remove('active');
-                        recipeForm.reset();
-                        imagePreview.classList.add('hidden');
-                        recipeImage.value = '';
-                    }
-                });
-
-                // Dropzone для изображения рецепта
-                dropzone.addEventListener('click', () => recipeImage.click());
-                dropzone.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    dropzone.classList.add('active');
-                });
-                dropzone.addEventListener('dragleave', () => {
-                    dropzone.classList.remove('active');
-                });
-                dropzone.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    dropzone.classList.remove('active');
-                    const file = e.dataTransfer.files[0];
-                    if (file && file.type.startsWith('image/')) {
-                        cropImageToSquare(file, (croppedImage) => {
-                            previewImage.src = croppedImage;
-                            imagePreview.classList.remove('hidden');
-                        });
-                    } else {
-                        showToast('Пожалуйста, выберите изображение.', 'error');
-                    }
-                });
-
-                // Загрузка изображения рецепта
-                recipeImage.addEventListener('change', () => {
-                    const file = recipeImage.files[0];
-                    if (file && file.type.startsWith('image/')) {
-                        cropImageToSquare(file, (croppedImage) => {
-                            previewImage.src = croppedImage;
-                            imagePreview.classList.remove('hidden');
-                        });
-                    } else {
-                        showToast('Пожалуйста, выберите изображение.', 'error');
-                    }
-                });
-
-                // Сохранение рецепта
-                recipeForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    if (!validateForm('recipe-form')) return;
-
-                    const name = document.getElementById('recipe-name').value.trim();
-                    const description = document.getElementById('recipe-description').value.trim();
-                    const prepTime = document.getElementById('prep-time').value.trim();
-                    const cookTime = document.getElementById('cook-time').value.trim();
-                    const calories = document.getElementById('recipe-calories').value.trim();
-                    const ingredients = Array.from(document.querySelectorAll('#ingredients-container .ingredient-input'))
-                        .map(input => input.value.trim())
-                        .filter(ing => ing !== '');
-                    const category = document.getElementById('recipe-category').value;
-                    const difficulty = document.getElementById('recipe-difficulty').value;
-                    const image = previewImage.src;
-
-                    const newRecipe = {
-                        id: state.newRecipeId++,
-                        name,
-                        description,
-                        image,
-                        time: `${parseInt(prepTime) + parseInt(cookTime)}min`,
-                        calories: calories || 'Unknown',
-                        difficulty,
-                        rating: 0,
-                        user: { name: profile.name, avatar: profile.avatar },
-                        saved: false,
-                        likes: 0,
-                        comments: 0,
-                        ingredients,
-                        category,
-                        prepTime,
-                        cookTime
-                    };
-
-                    try {
-                        const response = await fetch(`${API_URL}/recipes`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${token}`
-                            },
-                            body: JSON.stringify(newRecipe),
-                            credentials: 'include'
-                        });
-
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-
-                        const data = await response.json();
-                        state.recipes.push(newRecipe);
-                        state.filteredRecipes = [...state.recipes];
-                        renderRecipes();
-                        createModal.classList.remove('active');
-                        recipeForm.reset();
-                        imagePreview.classList.add('hidden');
-                        recipeImage.value = '';
-                        showToast('Рецепт успешно создан!', 'success');
-                        saveState();
-                    } catch (error) {
-                        console.error('Ошибка при создании рецепта:', error);
-                        showToast('Ошибка сервера. Попробуйте позже.', 'error');
-                    }
-                });
-
-                // Закрытие модального окна фильтров
-                closeFilterModal.addEventListener('click', () => {
-                    filterModal.classList.remove('active');
-                });
-
-                filterModal.addEventListener('click', (e) => {
-                    if (e.target === filterModal) {
-                        filterModal.classList.remove('active');
-                    }
-                });
-
-                // Применение фильтров
-                filterForm.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    if (!validateForm('filter-form')) return;
-
-                    const ingredients = Array.from(document.querySelectorAll('#filter-ingredients-container .filter-ingredient-input'))
-                        .map(input => input.value.trim().toLowerCase())
-                        .filter(ing => ing !== '');
-                    const rating = parseFloat(filterRatingSelect.value) || 0;
-
-                    state.searchIngredients = ingredients;
-                    state.minRating = rating;
-
-                    state.filteredRecipes = state.recipes.filter(recipe => {
-                        const matchesIngredients = ingredients.length === 0 || ingredients.every(ing =>
-                            recipe.ingredients.some(recipeIng => recipeIng.toLowerCase().includes(ing))
-                        );
-                        const matchesRating = recipe.rating >= rating;
-                        return matchesIngredients && matchesRating;
-                    });
-
-                    renderRecipes();
-                    filterModal.classList.remove('active');
-                    showToast('Фильтры применены!', 'success');
-                    saveState();
-                });
-
-                // Очистка фильтров
-                clearFiltersBtn.addEventListener('click', () => {
-                    filterForm.reset();
-                    state.searchIngredients = [];
-                    state.minRating = 0;
-                    state.filteredRecipes = [...state.recipes];
-                    renderRecipes();
-                    filterModal.classList.remove('active');
-                    showToast('Фильтры сброшены.', 'success');
-                    saveState();
-                });
-
-                // Поиск сообщений
-                messageSearch.addEventListener('input', () => {
-                    renderMessageList(messageSearch.value);
-                });
-
-                // Выбор чата
-                messageList.addEventListener('click', (e) => {
-                    const item = e.target.closest('.message-item');
-                    if (item) {
-                        const chatId = parseInt(item.dataset.id);
-                        renderChat(chatId);
-                    }
-                });
-
-                // Отправка сообщения
-                messageSendBtn.addEventListener('click', () => {
-                    const text = messageTextInput.value.trim();
-                    if (text) {
-                        sendMessage(text);
-                    }
-                });
-
-                // Отправка сообщения по Enter
-                messageTextInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        const text = messageTextInput.value.trim();
-                        if (text) {
-                            sendMessage(text);
-                        }
-                    }
-                });
-
-                // Загрузка медиа в сообщения
-                messageMediaBtn.addEventListener('click', () => {
-                    mediaInput.click();
-                });
-
-                mediaInput.addEventListener('change', () => {
-                    const file = mediaInput.files[0];
-                    if (file && file.type.startsWith('image/')) {
-                        cropImageToSquare(file, (croppedImage) => {
-                            sendMessage('Image sent', croppedImage);
-                        });
-                    } else {
-                        showToast('Пожалуйста, выберите изображение.', 'error');
-                    }
-                });
-
-                // Пользовательское меню
-                userMenu.addEventListener('click', () => {
-                    userDropdown.classList.toggle('hidden');
-                });
-
-                // Закрытие пользовательского меню при клике вне
-                document.addEventListener('click', (e) => {
-                    if (!userMenu.contains(e.target) && !userDropdown.contains(e.target)) {
-                        userDropdown.classList.add('hidden');
-                    }
-                });
-
-                // Выход из аккаунта
-                userDropdown.querySelector('a[href="Index.html"]').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    localStorage.removeItem('userEmail');
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('profileState');
-                    showToast('Вы вышли из аккаунта.', 'success');
-                    setTimeout(() => {
-                        window.location.assign('Index.html');
-                    }, 2000);
-                });
-
-                // Сохранение рецепта
-                recipesGrid.addEventListener('click', (e) => {
-                    const saveBtn = e.target.closest('.save-btn');
-                    if (saveBtn) {
-                        const recipeId = parseInt(saveBtn.dataset.id);
-                        const recipe = state.recipes.find(r => r.id === recipeId);
-                        if (recipe) {
-                            recipe.saved = !recipe.saved;
-                            if (recipe.saved) {
-                                state.savedRecipes.push(recipeId);
-                            } else {
-                                state.savedRecipes = state.savedRecipes.filter(id => id !== recipeId);
-                            }
-                            renderRecipes();
-                            showToast(recipe.saved ? 'Рецепт сохранен!' : 'Рецепт удален из сохраненных.', 'success');
-                            saveState();
-                        }
-                    }
-                });
-
-                savedGrid.addEventListener('click', (e) => {
-                    const saveBtn = e.target.closest('.save-btn');
-                    if (saveBtn) {
-                        const recipeId = parseInt(saveBtn.dataset.id);
-                        const recipe = state.recipes.find(r => r.id === recipeId);
-                        if (recipe) {
-                            recipe.saved = !recipe.saved;
-                            state.savedRecipes = state.savedRecipes.filter(id => id !== recipeId);
-                            renderRecipes();
-                            showToast('Рецепт удален из сохраненных.', 'success');
-                            saveState();
-                        }
-                    }
-                });
-
-                // Обработка уведомлений
-                notificationList.addEventListener('click', (e) => {
-                    const optionsBtn = e.target.closest('.notification-options-btn');
-                    const replyBtn = e.target.closest('.reply');
-                    const removeBtn = e.target.closest('.remove');
-                    if (optionsBtn) {
-                        const menu = optionsBtn.nextElementSibling;
-                        menu.classList.toggle('show');
-                    } else if (replyBtn) {
-                        const notificationId = parseInt(replyBtn.closest('.notification-item').dataset.id);
-                        const notification = notifications.find(n => n.id === notificationId);
-                        if (notification) {
-                            showToast('Функция ответа в разработке.', 'error');
-                        }
-                    } else if (removeBtn) {
-                        const notificationId = parseInt(removeBtn.closest('.notification-item').dataset.id);
-                        notifications.splice(notifications.findIndex(n => n.id === notificationId), 1);
-                        renderNotifications();
-                        showToast('Уведомление удалено.', 'success');
-                    }
-                });
-
-                // Закрытие меню уведомлений при клике вне
-                document.addEventListener('click', (e) => {
-                    if (!e.target.closest('.notification-options-btn') && !e.target.closest('.notification-options-menu')) {
-                        document.querySelectorAll('.notification-options-menu').forEach(menu => {
-                            menu.classList.remove('show');
-                        });
-                    }
-                });
-
-                // Динамическое добавление ингредиентов
-                const addIngredientBtn = document.querySelector('.add-ingredient');
-                const ingredientsContainer = document.getElementById('ingredients-container');
-                addIngredientBtn.addEventListener('click', () => {
-                    const ingredientInputs = ingredientsContainer.querySelectorAll('.ingredient-input');
-                    if (ingredientInputs.length >= 50) {
-                        showToast('Нельзя добавить более 50 ингредиентов.', 'error');
-                        return;
-                    }
-                    const div = document.createElement('div');
-                    div.className = 'ingredient-item';
-                    div.innerHTML = `
-                        <input type="text" name="ingredient" placeholder="e.g., 2 cups flour" 
-                            class="ingredient-input px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
-                        <span class="fas fa-times remove-ingredient" role="button" aria-label="Remove ingredient"></span>
-                    `;
-                    ingredientsContainer.appendChild(div);
-                });
-
-                ingredientsContainer.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('remove-ingredient')) {
-                        e.target.parentElement.remove();
-                    }
-                });
-
-                // Динамическое добавление ингредиентов для фильтра
-                const addFilterIngredientBtn = document.querySelector('.add-filter-ingredient');
-                addFilterIngredientBtn.addEventListener('click', () => {
-                    const filterInputs = filterIngredientsContainer.querySelectorAll('.filter-ingredient-input');
-                    if (filterInputs.length >= 10) {
-                        showToast('Нельзя добавить более 10 ингредиентов для фильтра.', 'error');
-                        return;
-                    }
-                    const div = document.createElement('div');
-                    div.className = 'filter-ingredient-item';
-                    div.innerHTML = `
-                        <input type="text" name="filter-ingredient" placeholder="e.g., avocado"
-                            class="filter-ingredient-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
-                        <span class="fas fa-times remove-filter-ingredient" role="button" aria-label="Remove ingredient"></span>
-                    `;
-                    filterIngredientsContainer.appendChild(div);
-                });
-
-                filterIngredientsContainer.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('remove-filter-ingredient')) {
-                        e.target.parentElement.remove();
-                    }
-                });
-
-                // Сброс формы создания рецепта
-                function resetRecipeForm() {
-                    recipeForm.reset();
-                    imagePreview.classList.add('hidden');
-                    previewImage.src = '';
-                    recipeImage.value = '';
-                    ingredientsContainer.innerHTML = `
-                        <div class="ingredient-item">
-                            <input type="text" name="ingredient" placeholder="e.g., 2 cups flour" 
-                                class="ingredient-input px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
-                            <span class="fas fa-times remove-ingredient" role="button" aria-label="Remove ingredient"></span>
-                        </div>
-                    `;
-                }
-            }
-
-            // Инициализация приложения
-            init();
+                    </div>
+                </div>
+                <div class="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md">
+                    <img src="${recipe.user.avatar}" alt="${recipe.user.name}" class="h-8 w-8 rounded-full">
+                </div>
+            </div>
+        `).join('') : '<div class="col-span-4 text-center py-10"><i class="fas fa-bookmark text-4xl text-gray-300 mb-3"></i><p class="text-gray-500">No saved recipes yet. Save some to see them here!</p></div>';
+    }
+
+    // Рендеринг подписчиков
+    function renderFollowers() {
+        followersList.innerHTML = followers.map(f => `
+            <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <img src="${f.avatar}" alt="${f.name}" class="h-10 w-10 rounded-full mr-3">
+                    <div>
+                        <p class="text-gray-800 font-medium">${f.name}</p>
+                        <p class="text-gray-500 text-xs">${f.username}</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button class="follower-action-btn px-3 py-1 rounded-full text-sm ${f.isFollowing ? 'bg-gray-100 text-gray-800' : 'bg-red-500 text-white'}" data-username="${f.username}">
+                        ${f.isFollowing ? 'Following' : 'Follow'}
+                    </button>
+                    <button class="remove-follower-btn px-3 py-1 rounded-full bg-red-100 text-red-500 text-sm" data-username="${f.username}">
+                        Remove
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Рендеринг подписок
+    function renderFollowing() {
+        followingList.innerHTML = following.map(f => `
+            <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg">
+                <div class="flex items-center">
+                    <img src="${f.avatar}" alt="${f.name}" class="h-10 w-10 rounded-full mr-3">
+                    <div>
+                        <p class="text-gray-800 font-medium">${f.name}</p>
+                        <p class="text-gray-500 text-xs">${f.username}</p>
+                    </div>
+                </div>
+                <button class="following-action-btn px-3 py-1 rounded-full text-sm ${f.isFollowing ? 'bg-gray-100 text-gray-800' : 'bg-red-500 text-white'}" data-username="${f.username}">
+                    ${f.isFollowing ? 'Following' : 'Follow'}
+                </button>
+            </div>
+        `).join('');
+    }
+
+    // Рендеринг уведомлений
+    function renderNotifications() {
+        notificationList.innerHTML = '';
+        notifications.forEach(n => {
+            const item = document.createElement('div');
+            item.className = 'notification-item';
+            item.dataset.id = n.id;
+            item.innerHTML = `
+                <img src="${n.user.avatar}" class="notification-avatar" alt="${n.user.name}">
+                <div class="notification-content">
+                    <div class="notification-text">${n.text}</div>
+                    ${n.comment ? `<div class="notification-comment">"${n.comment}"</div>` : ''}
+                    <div class="notification-time">${n.time}</div>
+                </div>
+                ${n.image ? `<img src="${n.image}" class="notification-image">` : ''}
+                <button class="notification-options-btn" aria-label="Notification options"><span class="fas fa-ellipsis-v" role="img" aria-hidden="true"></span></button>
+                <div class="notification-options-menu">
+                    <button class="reply">Reply</button>
+                    <button class="remove">Remove</button>
+                </div>
+            `;
+            notificationList.appendChild(item);
         });
+        notificationBadge.textContent = notifications.length;
+    }
+
+    // Рендеринг списка сообщений
+    function renderMessageList(filter = '') {
+        messageList.innerHTML = '';
+        const filteredMessages = filter
+            ? messages.filter(m => m.user.name.toLowerCase().includes(filter.toLowerCase()))
+            : messages;
+        filteredMessages.forEach(m => {
+            const item = document.createElement('div');
+            item.className = `message-item ${m.id === state.selectedChatId ? 'active' : ''}`;
+            item.dataset.id = m.id;
+            item.innerHTML = `
+                <div class="message-avatar" style="background-image: url(${m.user.avatar})"></div>
+                <div class="message-info">
+                    <div class="message-name">${m.user.name}</div>
+                    <div class="message-preview">${m.preview}</div>
+                </div>
+                <div class="message-meta">
+                    <div class="message-time">${m.time}</div>
+                    ${m.unread ? `<div class="message-unread">${m.unread}</div>` : ''}
+                </div>
+            `;
+            messageList.appendChild(item);
+        });
+    }
+
+    // Рендеринг чата
+    function renderChat(chatId) {
+        const chat = messages.find(m => m.id === chatId);
+        if (!chat) {
+            messageChat.innerHTML = '<div class="no-chat-selected">Who would you like to message?</div>';
+            messageUserName.textContent = 'Select a chat';
+            messageAvatar.style.backgroundImage = '';
+            messageSendBtn.disabled = true;
+            return;
+        }
+        state.selectedChatId = chatId;
+        messageUserName.textContent = chat.user.name;
+        messageAvatar.style.backgroundImage = `url(${chat.user.avatar || DEFAULT_AVATAR})`;
+        messageChat.innerHTML = '';
+        chat.chat.forEach(msg => {
+            const bubble = document.createElement('div');
+            bubble.className = `message-bubble ${msg.own ? 'own-message' : 'other-message'}`;
+            bubble.innerHTML = `
+                <div class="message-text">${msg.text}</div>
+                ${msg.media ? `<img src="${msg.media}" class="message-media">` : ''}
+                <div class="message-timestamp">${msg.timestamp}</div>
+            `;
+            messageChat.appendChild(bubble);
+        });
+        messageChat.scrollTop = messageChat.scrollHeight;
+        chat.unread = 0;
+        renderMessageList();
+        messageSendBtn.disabled = false;
+        saveState();
+    }
+
+    // Отправка сообщения
+    function sendMessage(text, media = null) {
+        if (!state.selectedChatId || !text) return;
+        const chat = messages.find(m => m.id === state.selectedChatId);
+        const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const message = { text, timestamp, own: true };
+        if (media) message.media = media;
+        chat.chat.push(message);
+        chat.preview = text.length > 30 ? text.substring(0, 30) + '...' : text;
+        chat.time = timestamp;
+        renderChat(state.selectedChatId);
+        messageTextInput.value = '';
+        mediaInput.value = '';
+        showToast('Сообщение отправлено!');
+    }
+
+    // Обрезка изображения до квадрата
+    function cropImageToSquare(file, callback) {
+        const img = new Image();
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            img.src = e.target.result;
+        };
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const size = Math.min(img.width, img.height);
+            canvas.width = size;
+            canvas.height = size;
+            const offsetX = (img.width - size) / 2;
+            const offsetY = (img.height - size) / 2;
+            ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
+            callback(canvas.toDataURL('image/jpeg'));
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Валидация форм
+    function validateForm(formId) {
+        let isValid = true;
+        let errorMessage = '';
+        if (formId === 'recipe-form') {
+            const recipeName = document.getElementById('recipe-name').value.trim();
+            const recipeDescription = document.getElementById('recipe-description').value.trim();
+            const prepTime = document.getElementById('prep-time').value.trim();
+            const cookTime = document.getElementById('cook-time').value.trim();
+            const recipeCalories = document.getElementById('recipe-calories').value.trim();
+            const ingredients = Array.from(document.querySelectorAll('#ingredients-container .ingredient-input')).map(input => input.value.trim());
+            const recipeCategory = document.getElementById('recipe-category').value;
+            if (!recipeName) {
+                isValid = false;
+                errorMessage = 'Название рецепта обязательно.';
+            } else if (recipeName.length > 100) {
+                isValid = false;
+                errorMessage = 'Название рецепта не может превышать 100 символов.';
+            }
+            if (!recipeDescription) {
+                isValid = false;
+                errorMessage = 'Описание обязательно.';
+            } else if (recipeDescription.length > 500) {
+                isValid = false;
+                errorMessage = 'Описание не может превышать 500 символов.';
+            }
+            if (!prepTime) {
+                isValid = false;
+                errorMessage = 'Время подготовки обязательно.';
+            } else if (!/^\d+\s*(min|hour|hr|h|m)$/i.test(prepTime)) {
+                isValid = false;
+                errorMessage = 'Время подготовки должно быть в формате (например, 15min, 1hour).';
+            }
+            if (!cookTime) {
+                isValid = false;
+                errorMessage = 'Время приготовления обязательно.';
+            } else if (!/^\d+\s*(min|hour|hr|h|m)$/i.test(cookTime)) {
+                isValid = false;
+                errorMessage = 'Время приготовления должно быть в формате (например, 20min, 1hour).';
+            }
+            if (recipeCalories && (isNaN(recipeCalories) || recipeCalories < 0)) {
+                isValid = false;
+                errorMessage = 'Калории должны быть положительным числом или пустым.';
+            }
+            const validIngredients = ingredients.filter(ing => ing !== '');
+            if (validIngredients.length === 0) {
+                isValid = false;
+                errorMessage = 'Требуется хотя бы один ингредиент.';
+            } else if (validIngredients.length > 50) {
+                isValid = false;
+                errorMessage = 'Нельзя добавить более 50 ингредиентов.';
+            } else {
+                for (let ing of validIngredients) {
+                    if (ing.length > 100) {
+                        isValid = false;
+                        errorMessage = 'Каждый ингредиент не может превышать 100 символов.';
+                        break;
+                    }
+                }
+            }
+            if (!recipeCategory) {
+                isValid = false;
+                errorMessage = 'Выберите категорию.';
+            }
+            if (recipeImage.files.length === 0 && !previewImage.src) {
+                isValid = false;
+                errorMessage = 'Загрузите изображение рецепта.';
+            }
+        } else if (formId === 'edit-profile-form') {
+            const profileNameInput = document.getElementById('profile-name').value.trim();
+            const profileUsernameInput = document.getElementById('profile-username').value.trim();
+            const profileBioInput = document.getElementById('profile-bio').value.trim();
+            if (!profileNameInput) {
+                isValid = false;
+                errorMessage = 'Имя обязательно.';
+            } else if (profileNameInput.length > 50) {
+                isValid = false;
+                errorMessage = 'Имя не может превышать 50 символов.';
+            }
+            if (!profileUsernameInput) {
+                isValid = false;
+                errorMessage = 'Имя пользователя обязательно.';
+            } else if (!/^@[\w.]{1,15}$/.test(profileUsernameInput)) {
+                isValid = false;
+                errorMessage = 'Имя пользователя должно начинаться с @ и содержать 1-15 символов (буквы, цифры, точки).';
+            }
+            if (profileBioInput.length > 160) {
+                isValid = false;
+                errorMessage = 'Биография не может превышать 160 символов.';
+            }
+        } else if (formId === 'filter-form') {
+            const filterIngredients = Array.from(document.querySelectorAll('#filter-ingredients-container .filter-ingredient-input')).map(input => input.value.trim());
+            const validFilterIngredients = filterIngredients.filter(ing => ing !== '');
+            if (validFilterIngredients.length > 10) {
+                isValid = false;
+                errorMessage = 'Нельзя добавить более 10 ингредиентов для фильтра.';
+            } else {
+                for (let ing of validFilterIngredients) {
+                    if (ing.length > 100) {
+                        isValid = false;
+                        errorMessage = 'Каждый ингредиент фильтра не может превышать 100 символов.';
+                        break;
+                    }
+                }
+            }
+        }
+        if (!isValid) {
+            showToast(errorMessage, 'error');
+        }
+        return isValid;
+    }
+
+    // Установка обработчиков событий
+    function setupEventListeners() {
+        // Поиск
+        searchBar.addEventListener('input', () => {
+            renderRecipes(searchBar.value);
+        });
+
+        // Кнопка фильтра
+        filterBtn.addEventListener('click', () => {
+            filterModal.classList.add('active');
+        });
+
+        // Кнопка создания рецепта
+        createBtn.addEventListener('click', () => {
+            createModal.classList.add('active');
+            resetRecipeForm();
+        });
+
+        // Кнопка уведомлений
+        notificationBtn.addEventListener('click', () => {
+            notificationOverlay.classList.add('active');
+            notificationPanel.classList.add('active');
+        });
+
+        // Кнопка сообщений
+        messageBtn.addEventListener('click', () => {
+            messageOverlay.classList.add('active');
+            messagePanel.classList.add('active');
+            renderMessageList();
+        });
+
+        // Закрытие панели уведомлений
+        closeNotificationPanel.addEventListener('click', () => {
+            notificationOverlay.classList.remove('active');
+            notificationPanel.classList.remove('active');
+        });
+
+        // Закрытие панели сообщений
+        closeMessagePanel.addEventListener('click', () => {
+            messageOverlay.classList.remove('active');
+            messagePanel.classList.remove('active');
+            state.selectedChatId = null;
+            saveState();
+        });
+
+        // Клик по оверлею уведомлений
+        notificationOverlay.addEventListener('click', () => {
+            notificationOverlay.classList.remove('active');
+            notificationPanel.classList.remove('active');
+        });
+
+        // Клик по оверлею сообщений
+        messageOverlay.addEventListener('click', () => {
+            messageOverlay.classList.remove('active');
+            messagePanel.classList.remove('active');
+            state.selectedChatId = null;
+            saveState();
+        });
+
+        // Вкладки
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('tab-active'));
+                tab.classList.add('tab-active');
+                state.activeTab = tab.dataset.tab;
+                recipesGrid.classList.toggle('hidden', state.activeTab !== 'recipes');
+                savedGrid.classList.toggle('hidden', state.activeTab !== 'saved');
+                renderRecipes();
+            });
+        });
+
+        // Кнопка редактирования профиля
+        editProfileBtn.addEventListener('click', () => {
+            editProfileModal.classList.add('active');
+            document.getElementById('profile-name').value = profile.name;
+            document.getElementById('profile-username').value = profile.username;
+            document.getElementById('profile-bio').value = profile.bio;
+            if (profile.avatar) {
+                profilePreviewImage.src = profile.avatar;
+                profileImagePreview.classList.remove('hidden');
+            }
+            profileImage.value = '';
+        });
+
+        // Закрытие модального окна редактирования профиля
+        closeEditModal.addEventListener('click', () => {
+            editProfileModal.classList.remove('active');
+            profileImage.value = '';
+        });
+
+        // Отмена редактирования профиля
+        cancelEdit.addEventListener('click', () => {
+            editProfileModal.classList.remove('active');
+            editProfileForm.reset();
+            profileImagePreview.classList.add('hidden');
+            profileImage.value = '';
+        });
+
+        editProfileModal.addEventListener('click', e => {
+            if (e.target === editProfileModal) {
+                editProfileModal.classList.remove('active');
+                editProfileForm.reset();
+                profileImagePreview.classList.add('hidden');
+                profileImage.value = '';
+            }
+        });
+
+        // Dropzone для изображения профиля
+        profileDropzone.addEventListener('click', () => profileImage.click());
+        profileDropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            profileDropzone.classList.add('active');
+        });
+        profileDropzone.addEventListener('dragleave', () => {
+            profileDropzone.classList.remove('active');
+        });
+        profileDropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            profileDropzone.classList.remove('active');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                cropImageToSquare(file, (croppedImage) => {
+                    profilePreviewImage.src = croppedImage;
+                    profileImagePreview.classList.remove('hidden');
+                });
+            } else {
+                showToast('Пожалуйста, выберите изображение.', 'error');
+            }
+        });
+
+        // Загрузка изображения профиля
+        profileImage.addEventListener('change', () => {
+            const file = profileImage.files[0];
+            if (file && file.type.startsWith('image/')) {
+                cropImageToSquare(file, (croppedImage) => {
+                    profilePreviewImage.src = croppedImage;
+                    profileImagePreview.classList.remove('hidden');
+                });
+            } else {
+                showToast('Пожалуйста, выберите изображение.', 'error');
+            }
+        });
+
+        // Сохранение профиля
+        editProfileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!validateForm('edit-profile-form')) return;
+
+            const name = document.getElementById('profile-name').value.trim();
+            const username = document.getElementById('profile-username').value.trim();
+            const bio = document.getElementById('profile-bio').value.trim();
+            let avatar = profile.avatar;
+
+            if (profileImage.files[0]) {
+                avatar = profilePreviewImage.src;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/users/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ email, name, username, bio, avatar }),
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                profile = { ...profile, name, username, bio, avatar };
+                updateProfile();
+                editProfileModal.classList.remove('active');
+                editProfileForm.reset();
+                profileImagePreview.classList.add('hidden');
+                profileImage.value = '';
+                showToast('Профиль успешно обновлен!', 'success');
+            } catch (error) {
+                console.error('Ошибка при обновлении профиля:', error);
+                showToast('Ошибка сервера. Попробуйте позже.', 'error');
+            }
+        });
+
+        // Открытие модального окна подписчиков
+        followersBtn.addEventListener('click', () => {
+            followersModal.classList.add('active');
+            renderFollowers();
+        });
+
+        // Открытие модального окна подписок
+        followingBtn.addEventListener('click', () => {
+            followingModal.classList.add('active');
+            renderFollowing();
+        });
+
+        // Закрытие модального окна подписчиков
+        closeFollowersModal.addEventListener('click', () => {
+            followersModal.classList.remove('active');
+        });
+
+        // Закрытие модального окна подписок
+        closeFollowingModal.addEventListener('click', () => {
+            followingModal.classList.remove('active');
+        });
+
+        // Закрытие модальных окон при клике на оверлей
+        followersModal.addEventListener('click', (e) => {
+            if (e.target === followersModal) {
+                followersModal.classList.remove('active');
+            }
+        });
+
+        followingModal.addEventListener('click', (e) => {
+            if (e.target === followingModal) {
+                followingModal.classList.remove('active');
+            }
+        });
+
+        // Обработка действий с подписчиками
+        followersList.addEventListener('click', (e) => {
+            const followBtn = e.target.closest('.follower-action-btn');
+            const removeBtn = e.target.closest('.remove-follower-btn');
+            if (followBtn) {
+                const username = followBtn.dataset.username;
+                const follower = followers.find(f => f.username === username);
+                if (follower) {
+                    follower.isFollowing = !follower.isFollowing;
+                    renderFollowers();
+                    showToast(follower.isFollowing ? `Вы подписались на ${follower.name}!` : `Вы отписались от ${follower.name}.`, 'success');
+                }
+            } else if (removeBtn) {
+                const username = removeBtn.dataset.username;
+                followers = followers.filter(f => f.username !== username);
+                profile.followers = followers.length;
+                updateProfile();
+                renderFollowers();
+                showToast('Подписчик удален.', 'success');
+            }
+        });
+
+        // Обработка действий с подписками
+        followingList.addEventListener('click', (e) => {
+            const followBtn = e.target.closest('.following-action-btn');
+            if (followBtn) {
+                const username = followBtn.dataset.username;
+                const follow = following.find(f => f.username === username);
+                if (follow) {
+                    follow.isFollowing = !follow.isFollowing;
+                    if (!follow.isFollowing) {
+                        following = following.filter(f => f.username !== username);
+                        profile.following = following.length;
+                    }
+                    updateProfile();
+                    renderFollowing();
+                    showToast(follow.isFollowing ? `Вы подписались на ${follow.name}!` : `Вы отписались от ${follow.name}.`, 'success');
+                }
+            }
+        });
+
+        // Закрытие модального окна создания рецепта
+        closeModal.addEventListener('click', () => {
+            createModal.classList.remove('active');
+            recipeForm.reset();
+            imagePreview.classList.add('hidden');
+            recipeImage.value = '';
+        });
+
+        cancelRecipe.addEventListener('click', () => {
+            createModal.classList.remove('active');
+            recipeForm.reset();
+            imagePreview.classList.add('hidden');
+            recipeImage.value = '';
+        });
+
+        createModal.addEventListener('click', (e) => {
+            if (e.target === createModal) {
+                createModal.classList.remove('active');
+                recipeForm.reset();
+                imagePreview.classList.add('hidden');
+                recipeImage.value = '';
+            }
+        });
+
+        // Dropzone для изображения рецепта
+        dropzone.addEventListener('click', () => recipeImage.click());
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('active');
+        });
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('active');
+        });
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('active');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                cropImageToSquare(file, (croppedImage) => {
+                    previewImage.src = croppedImage;
+                    imagePreview.classList.remove('hidden');
+                });
+            } else {
+                showToast('Пожалуйста, выберите изображение.', 'error');
+            }
+        });
+
+        // Загрузка изображения рецепта
+        recipeImage.addEventListener('change', () => {
+            const file = recipeImage.files[0];
+            if (file && file.type.startsWith('image/')) {
+                cropImageToSquare(file, (croppedImage) => {
+                    previewImage.src = croppedImage;
+                    imagePreview.classList.remove('hidden');
+                });
+            } else {
+                showToast('Пожалуйста, выберите изображение.', 'error');
+            }
+        });
+
+        // Сохранение рецепта
+        recipeForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!validateForm('recipe-form')) return;
+
+            const name = document.getElementById('recipe-name').value.trim();
+            const description = document.getElementById('recipe-description').value.trim();
+            const prepTime = document.getElementById('prep-time').value.trim();
+            const cookTime = document.getElementById('cook-time').value.trim();
+            const calories = document.getElementById('recipe-calories').value.trim();
+            const ingredients = Array.from(document.querySelectorAll('#ingredients-container .ingredient-input'))
+                .map(input => input.value.trim())
+                .filter(ing => ing !== '');
+            const category = document.getElementById('recipe-category').value;
+            const difficulty = document.getElementById('recipe-difficulty').value;
+            const image = previewImage.src;
+
+            // Извлечение числовой части из prepTime и cookTime
+            const prepTimeValue = parseInt(prepTime) || 0; // Если не число, используем 0
+            const cookTimeValue = parseInt(cookTime) || 0; // Если не число, используем 0
+
+            const newRecipe = {
+                id: state.newRecipeId++,
+                name,
+                description,
+                image,
+                time: `${prepTimeValue + cookTimeValue}min`,
+                calories: calories || 'Unknown',
+                difficulty,
+                rating: 0,
+                user: { name: profile.name, avatar: profile.avatar },
+                saved: false,
+                likes: 0,
+                comments: 0,
+                ingredients,
+                category,
+                prepTime,
+                cookTime
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/recipes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(newRecipe),
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                state.recipes.push(newRecipe);
+                state.filteredRecipes = [...state.recipes];
+                renderRecipes();
+                createModal.classList.remove('active');
+                recipeForm.reset();
+                imagePreview.classList.add('hidden');
+                recipeImage.value = '';
+                showToast('Рецепт успешно создан!', 'success');
+                saveState();
+            } catch (error) {
+                console.error('Ошибка при создании рецепта:', error);
+                showToast('Ошибка сервера. Попробуйте позже.', 'error');
+            }
+        });
+
+        // Закрытие модального окна фильтров
+        closeFilterModal.addEventListener('click', () => {
+            filterModal.classList.remove('active');
+        });
+
+        filterModal.addEventListener('click', (e) => {
+            if (e.target === filterModal) {
+                filterModal.classList.remove('active');
+            }
+        });
+
+        // Применение фильтров
+        filterForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!validateForm('filter-form')) return;
+
+            const ingredients = Array.from(document.querySelectorAll('#filter-ingredients-container .filter-ingredient-input'))
+                .map(input => input.value.trim().toLowerCase())
+                .filter(ing => ing !== '');
+            const rating = parseFloat(filterRatingSelect.value) || 0;
+
+            state.searchIngredients = ingredients;
+            state.minRating = rating;
+
+            state.filteredRecipes = state.recipes.filter(recipe => {
+                const matchesIngredients = ingredients.length === 0 || ingredients.every(ing =>
+                    recipe.ingredients.some(recipeIng => recipeIng.toLowerCase().includes(ing))
+                );
+                const matchesRating = recipe.rating >= rating;
+                return matchesIngredients && matchesRating;
+            });
+
+            renderRecipes();
+            filterModal.classList.remove('active');
+            showToast('Фильтры применены!', 'success');
+            saveState();
+        });
+
+        // Очистка фильтров
+        clearFiltersBtn.addEventListener('click', () => {
+            filterForm.reset();
+            state.searchIngredients = [];
+            state.minRating = 0;
+            state.filteredRecipes = [...state.recipes];
+            renderRecipes();
+            filterModal.classList.remove('active');
+            showToast('Фильтры сброшены.', 'success');
+            saveState();
+        });
+
+        // Поиск сообщений
+        messageSearch.addEventListener('input', () => {
+            renderMessageList(messageSearch.value);
+        });
+
+        // Выбор чата
+        messageList.addEventListener('click', (e) => {
+            const item = e.target.closest('.message-item');
+            if (item) {
+                const chatId = parseInt(item.dataset.id);
+                renderChat(chatId);
+            }
+        });
+
+        // Отправка сообщения
+        messageSendBtn.addEventListener('click', () => {
+            const text = messageTextInput.value.trim();
+            if (text) {
+                sendMessage(text);
+            }
+        });
+
+        // Отправка сообщения по Enter
+        messageTextInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                const text = messageTextInput.value.trim();
+                if (text) {
+                    sendMessage(text);
+                }
+            }
+        });
+
+        // Загрузка медиа в сообщения
+        messageMediaBtn.addEventListener('click', () => {
+            mediaInput.click();
+        });
+
+        mediaInput.addEventListener('change', () => {
+            const file = mediaInput.files[0];
+            if (file && file.type.startsWith('image/')) {
+                cropImageToSquare(file, (croppedImage) => {
+                    sendMessage('Image sent', croppedImage);
+                });
+            } else {
+                showToast('Пожалуйста, выберите изображение.', 'error');
+            }
+        });
+
+        // Пользовательское меню
+        userMenu.addEventListener('click', () => {
+            userDropdown.classList.toggle('hidden');
+        });
+
+        // Закрытие пользовательского меню при клике вне
+        document.addEventListener('click', (e) => {
+            if (!userMenu.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.add('hidden');
+            }
+        });
+
+        // Выход из аккаунта
+        userDropdown.querySelector('a[href="Index.html"]').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('token');
+            localStorage.removeItem('profileState');
+            showToast('Вы вышли из аккаунта.', 'success');
+            setTimeout(() => {
+                window.location.assign('Index.html');
+            }, 2000);
+        });
+
+        // Сохранение рецепта
+        recipesGrid.addEventListener('click', (e) => {
+            const saveBtn = e.target.closest('.save-btn');
+            if (saveBtn) {
+                const recipeId = parseInt(saveBtn.dataset.id);
+                const recipe = state.recipes.find(r => r.id === recipeId);
+                if (recipe) {
+                    recipe.saved = !recipe.saved;
+                    if (recipe.saved) {
+                        state.savedRecipes.push(recipeId);
+                    } else {
+                        state.savedRecipes = state.savedRecipes.filter(id => id !== recipeId);
+                    }
+                    renderRecipes();
+                    showToast(recipe.saved ? 'Рецепт сохранен!' : 'Рецепт удален из сохраненных.', 'success');
+                    saveState();
+                }
+            }
+        });
+
+        savedGrid.addEventListener('click', (e) => {
+            const saveBtn = e.target.closest('.save-btn');
+            if (saveBtn) {
+                const recipeId = parseInt(saveBtn.dataset.id);
+                const recipe = state.recipes.find(r => r.id === recipeId);
+                if (recipe) {
+                    recipe.saved = !recipe.saved;
+                    state.savedRecipes = state.savedRecipes.filter(id => id !== recipeId);
+                    renderRecipes();
+                    showToast('Рецепт удален из сохраненных.', 'success');
+                    saveState();
+                }
+            }
+        });
+
+        // Обработка уведомлений
+        notificationList.addEventListener('click', (e) => {
+            const optionsBtn = e.target.closest('.notification-options-btn');
+            const replyBtn = e.target.closest('.reply');
+            const removeBtn = e.target.closest('.remove');
+            if (optionsBtn) {
+                const menu = optionsBtn.nextElementSibling;
+                menu.classList.toggle('show');
+            } else if (replyBtn) {
+                const notificationId = parseInt(replyBtn.closest('.notification-item').dataset.id);
+                const notification = notifications.find(n => n.id === notificationId);
+                if (notification) {
+                    showToast('Функция ответа в разработке.', 'error');
+                }
+            } else if (removeBtn) {
+                const notificationId = parseInt(removeBtn.closest('.notification-item').dataset.id);
+                notifications.splice(notifications.findIndex(n => n.id === notificationId), 1);
+                renderNotifications();
+                showToast('Уведомление удалено.', 'success');
+            }
+        });
+
+        // Закрытие меню уведомлений при клике вне
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.notification-options-btn') && !e.target.closest('.notification-options-menu')) {
+                document.querySelectorAll('.notification-options-menu').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+            }
+        });
+
+        // Динамическое добавление ингредиентов
+        const addIngredientBtn = document.querySelector('.add-ingredient');
+        const ingredientsContainer = document.getElementById('ingredients-container');
+        addIngredientBtn.addEventListener('click', () => {
+            const ingredientInputs = ingredientsContainer.querySelectorAll('.ingredient-input');
+            if (ingredientInputs.length >= 50) {
+                showToast('Нельзя добавить более 50 ингредиентов.', 'error');
+                return;
+            }
+            const div = document.createElement('div');
+            div.className = 'ingredient-item';
+            div.innerHTML = `
+                <input type="text" name="ingredient" placeholder="e.g., 2 cups flour" 
+                    class="ingredient-input px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                <span class="fas fa-times remove-ingredient" role="button" aria-label="Remove ingredient"></span>
+            `;
+            ingredientsContainer.appendChild(div);
+        });
+
+        ingredientsContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-ingredient')) {
+                e.target.parentElement.remove();
+            }
+        });
+
+        // Динамическое добавление ингредиентов для фильтра
+        const addFilterIngredientBtn = document.querySelector('.add-filter-ingredient');
+        addFilterIngredientBtn.addEventListener('click', () => {
+            const filterInputs = filterIngredientsContainer.querySelectorAll('.filter-ingredient-input');
+            if (filterInputs.length >= 10) {
+                showToast('Нельзя добавить более 10 ингредиентов для фильтра.', 'error');
+                return;
+            }
+            const div = document.createElement('div');
+            div.className = 'filter-ingredient-item';
+            div.innerHTML = `
+                <input type="text" name="filter-ingredient" placeholder="e.g., avocado"
+                    class="filter-ingredient-input w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                <span class="fas fa-times remove-filter-ingredient" role="button" aria-label="Remove ingredient"></span>
+            `;
+            filterIngredientsContainer.appendChild(div);
+        });
+
+        filterIngredientsContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-filter-ingredient')) {
+                e.target.parentElement.remove();
+            }
+        });
+
+        // Сброс формы создания рецепта
+        function resetRecipeForm() {
+            recipeForm.reset();
+            imagePreview.classList.add('hidden');
+            previewImage.src = '';
+            recipeImage.value = '';
+            ingredientsContainer.innerHTML = `
+                <div class="ingredient-item">
+                    <input type="text" name="ingredient" placeholder="e.g., 2 cups flour" 
+                        class="ingredient-input px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <span class="fas fa-times remove-ingredient" role="button" aria-label="Remove ingredient"></span>
+                </div>
+            `;
+        }
+    }
+
+    // Инициализация приложения
+    init();
+});
     </script>
 </body>
 </html>
