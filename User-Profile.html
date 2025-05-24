@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Balzhan Yerzhankyzy - Tátti-Dám</title>
+    <title>Profile - Tátti-Dám</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -688,9 +688,8 @@
             <!-- Profile Info -->
             <div class="pt-16 pb-6 px-6 text-center">
                 <div class="flex justify-center items-center">
-                    <h1 id="profile-name" class="text-2xl font-bold text-gray-800">Balzhan Yerzhankyzy</h1>
+                    <h1 id="profile-name" class="text-2xl font-bold text-gray-800">Your Nick name</h1>
                 </div>
-                <p id="profile-username" class="text-gray-600 text-sm mt-1">@BalzhanY.</p>
                 <p id="profile-bio" class="text-gray-600 text-sm mt-2 max-w-md mx-auto">Food enthusiast and recipe creator. Sharing my culinary adventures from around the world!</p>
                 
                 <!-- Social Links -->
@@ -759,13 +758,6 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
                     </div>
                     <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-medium mb-2" for="profile-username">
-                            Username
-                        </label>
-                        <input type="text" id="profile-username" value="@BalzhanY." required
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
-                    </div>
-                    <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-medium mb-2" for="profile-bio">
                             Bio
                         </label>
@@ -782,8 +774,8 @@
                             <input type="file" id="profile-image" class="hidden" accept="image/*">
                         </div>
                         <div id="profile-image-preview" class="hidden mt-2">
-                            <img id="profile-preview-image" src="#" alt="Preview" class="max-h-40 mx-auto rounded-full">
-                        </div>
+    <img id="profile-preview-image" src="#" alt="Preview" class="max-h-40 mx-auto rounded-full">
+</div>
                     </div>
                     <div class="flex justify-end">
                         <button type="button" id="cancel-edit" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md mr-2 hover:bg-gray-300">
@@ -1164,7 +1156,6 @@
     const followingBtn = document.getElementById('following-btn');
     const recipesBtn = document.getElementById('recipes-btn');
     const profileName = document.getElementById('profile-name');
-    const profileUsername = document.getElementById('profile-username');
     const profileBio = document.getElementById('profile-bio');
     const profileAvatar = document.getElementById('profile-avatar');
     const followersCount = document.getElementById('followers-count');
@@ -1201,7 +1192,6 @@
     const dropzone = document.getElementById('dropzone');
     const recipeImage = document.getElementById('recipe-image');
     const imagePreview = document.getElementById('image-preview');
-    const previewImage = document.getElementById('preview-image');
     const prepTimeInput = document.getElementById('prep-time');
     const cookTimeInput = document.getElementById('cook-time');
     const filterModal = document.getElementById('filter-modal');
@@ -1224,84 +1214,88 @@
     const messageSendBtn = document.getElementById('messageSendBtn');
 
     // Инициализация
-    async function init() {
-        try {
-            
-        const email = "asdasd@gmail.com"; // или из формы ввода
-        const password = "user_password";
-            // Запрос к API для получения имени по email через /users/login
-            const response = await fetch(`${API_URL}/users/login`, {
-            method: 'POST',
+    // Инициализация
+// Инициализация
+async function init() {
+    try {
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            throw new Error('No token found in localStorage');
+        }
+
+        // Запрос к API для получения данных профиля
+        const response = await fetch('https://platform-g43f.onrender.com/api/users/profile', {
+            method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
+            }
         });
 
-             if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Ошибка авторизации');
+        if (!response.ok) {
+            if (response.status === 401) {
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('token');
+                localStorage.removeItem('userProfile');
+                window.location.assign('Index.html');
+                return;
+            }
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-            localStorage.setItem('token', data.token);
-        localStorage.setItem('userEmail', email);
+        const data = await response.json();
+        console.log('Данные от API /api/users/profile:', data);
+
+        // Обновляем профиль данными с сервера
+        profile = {
+            id: data.id || 0,
+            name: data.name || 'User',
+            email: data.email || localStorage.getItem('userEmail') || '',
+            bio: data.bio || 'Food enthusiast and recipe creator.',
+            avatar: data.avatarBase64 || 'https://randomuser.me/api/portraits/lego/1.jpg',
+            followers: data.followers || 0,
+            following: data.following || 0,
+            recipesCount: data.recipesCount || 0
+        };
+
+        updateProfile();
+        loadState();
+        setupEventListeners();
+        renderRecipes();
+        renderFollowers();
+        renderFollowing();
+        renderNotifications();
+        renderMessageList();
+
+        showToast(`Добро пожаловать, ${profile.name}!`, 'success');
+    } catch (error) {
+        console.error('Ошибка при получении данных профиля:', error);
+        // Используем мок-данные, если API недоступно
+        profile = {
+            id: 0,
+            name: "Balzhan Yerzhankyzy",
+            email: localStorage.getItem('userEmail') || '',
+            bio: "Food enthusiast and recipe creator. Sharing my culinary adventures from around the world!",
+            avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+            followers: 350,
+            following: 180,
+            recipesCount: 0
+        };
         
-        console.log('Успешная авторизация. Токен:', data.token);
-        showToast('Вы успешно авторизовались!');
+        updateProfile();
+        loadState();
+        setupEventListeners();
+        renderRecipes();
+        renderFollowers();
+        renderFollowing();
+        renderNotifications();
+        renderMessageList();
         
-        // Перенаправляем на страницу профиля
-        window.location.href = 'profile.html';
-            const data = await response.json();
-            console.log('Данные от API /users/login:', data);
-
-            // Обновляем профиль данными с сервера
-            profile = {
-                ...profile,
-                name: data.name || email.split('@')[0],
-                username: data.username || `@${email.split('@')[0]}`,
-                bio: data.bio || 'Food enthusiast and recipe creator.',
-                avatar: data.avatar || DEFAULT_AVATAR
-            };
-
-            loadState();
-            setupEventListeners();
-            renderRecipes();
-            renderFollowers();
-            renderFollowing();
-            renderNotifications();
-            renderMessageList();
-            updateProfile();
-
-            showToast(`Добро пожаловать, ${profile.name}!`, 'success');
-        } catch (error) {
-            
-        console.error('Ошибка авторизации:', error);
-        showToast(error.message || 'Неверный email или пароль', 'error');
-            // Используем мок-данные, если API недоступно
-            profile = {
-                ...profile,
-                name: "Balzhan Yerzhankyzy",
-                username: "@BalzhanY.",
-                bio: "Food enthusiast and recipe creator. Sharing my culinary adventures from around the world!",
-                avatar: "https://randomuser.me/api/portraits/women/44.jpg"
-            };
-            
-            updateProfile();
-            loadState();
-            setupEventListeners();
-            renderRecipes();
-            renderFollowers();
-            renderFollowing();
-            renderNotifications();
-            renderMessageList();
-            
-            showToast('Сервер не отвечает. Используются демо-данные.', 'warning');
-        }
+        showToast('Сервер не отвечает. Используются демо-данные.', 'warning');
     }
+}
 
     // Загрузка состояния из localStorage
     function loadState() {
@@ -1332,18 +1326,47 @@
     }
 
     // Обновление отображения профиля
-    function updateProfile() {
-        profileName.textContent = profile.name;
-        profileUsername.textContent = profile.username;
-        profileBio.textContent = profile.bio;
-        profileAvatar.src = profile.avatar;
-        userMenu.querySelector('img').src = profile.avatar;
-        followersCount.textContent = profile.followers;
-        followingCount.textContent = profile.following;
-        recipesCount.textContent = state.recipes.length;
-        document.querySelector('#followers-modal h3').textContent = `Followers (${profile.followers})`;
-        document.querySelector('#following-modal h3').textContent = `Following (${profile.following})`;
+function updateProfile() {
+    profileName.textContent = profile.name;
+    profileBio.textContent = profile.bio;
+
+    // Безопасная установка аватара
+    let avatarSrc = 'https://randomuser.me/api/portraits/lego/1.jpg'; // Дефолтный аватар
+    if (profile.avatar) {
+        if (profile.avatar.startsWith('data:image/') || profile.avatar.startsWith('http')) {
+            avatarSrc = profile.avatar;
+        } else {
+            console.warn('Невалидный avatar, пытаемся исправить:', profile.avatar);
+            if (/^[A-Za-z0-9+/=]+$/.test(profile.avatar)) {
+                avatarSrc = `data:image/jpeg;base64,${profile.avatar}`;
+                console.log('Исправлен avatar:', avatarSrc);
+            } else {
+                showToast('Аватар невалиден, используется дефолтный.', 'warning');
+            }
+        }
     }
+    console.log('Установка profileAvatar.src:', avatarSrc);
+    profileAvatar.src = avatarSrc;
+    userMenu.querySelector('img').src = avatarSrc;
+
+    followersCount.textContent = profile.followers;
+    followingCount.textContent = profile.following;
+    recipesCount.textContent = profile.recipesCount || state.recipes.length;
+    document.querySelector('#followers-modal h3').textContent = `Followers (${profile.followers})`;
+    document.querySelector('#following-modal h3').textContent = `Following (${profile.following})`;
+
+    // Сохраняем обновленный профиль в localStorage
+    localStorage.setItem('userProfile', JSON.stringify({
+        id: profile.id,
+        name: profile.name,
+        email: profile.email,
+        bio: profile.bio,
+        avatar: profile.avatar,
+        followers: profile.followers,
+        following: profile.following,
+        recipesCount: profile.recipesCount
+    }));
+}
 
     // Рендеринг рецептов
     function renderRecipes(searchQuery = '') {
@@ -1565,25 +1588,25 @@
     }
 
     // Обрезка изображения до квадрата
-    function cropImageToSquare(file, callback) {
-        const img = new Image();
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            img.src = e.target.result;
-        };
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const size = Math.min(img.width, img.height);
-            canvas.width = size;
-            canvas.height = size;
-            const offsetX = (img.width - size) / 2;
-            const offsetY = (img.height - size) / 2;
-            ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
-            callback(canvas.toDataURL('image/jpeg'));
-        };
-        reader.readAsDataURL(file);
-    }
+function cropImageToSquare(file, callback) {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        img.src = e.target.result;
+    };
+    img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const size = Math.min(img.width, img.height);
+        canvas.width = size;
+        canvas.height = size;
+        const offsetX = (img.width - size) / 2;
+        const offsetY = (img.height - size) / 2;
+        ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
+        callback(canvas.toDataURL('image/jpeg'));
+    };
+    reader.readAsDataURL(file);
+}
 
     // Валидация форм
     function validateForm(formId) {
@@ -1649,13 +1672,8 @@
                 isValid = false;
                 errorMessage = 'Выберите категорию.';
             }
-            if (recipeImage.files.length === 0 && !previewImage.src) {
-                isValid = false;
-                errorMessage = 'Загрузите изображение рецепта.';
-            }
         } else if (formId === 'edit-profile-form') {
             const profileNameInput = document.getElementById('profile-name').value.trim();
-            const profileUsernameInput = document.getElementById('profile-username').value.trim();
             const profileBioInput = document.getElementById('profile-bio').value.trim();
             if (!profileNameInput) {
                 isValid = false;
@@ -1663,13 +1681,6 @@
             } else if (profileNameInput.length > 50) {
                 isValid = false;
                 errorMessage = 'Имя не может превышать 50 символов.';
-            }
-            if (!profileUsernameInput) {
-                isValid = false;
-                errorMessage = 'Имя пользователя обязательно.';
-            } else if (!/^@[\w.]{1,15}$/.test(profileUsernameInput)) {
-                isValid = false;
-                errorMessage = 'Имя пользователя должно начинаться с @ и содержать 1-15 символов (буквы, цифры, точки).';
             }
             if (profileBioInput.length > 160) {
                 isValid = false;
@@ -1772,7 +1783,6 @@
         editProfileBtn.addEventListener('click', () => {
             editProfileModal.classList.add('active');
             document.getElementById('profile-name').value = profile.name;
-            document.getElementById('profile-username').value = profile.username;
             document.getElementById('profile-bio').value = profile.bio;
             if (profile.avatar) {
                 profilePreviewImage.src = profile.avatar;
@@ -1828,61 +1838,144 @@
         });
 
         // Загрузка изображения профиля
-        profileImage.addEventListener('change', () => {
-            const file = profileImage.files[0];
-            if (file && file.type.startsWith('image/')) {
-                cropImageToSquare(file, (croppedImage) => {
-                    profilePreviewImage.src = croppedImage;
-                    profileImagePreview.classList.remove('hidden');
-                });
+profileImage.addEventListener('change', () => {
+    const file = profileImage.files[0];
+    if (file && file.type.startsWith('image/')) {
+        if (file.size > 1 * 1024 * 1024) {
+            showToast('Изображение слишком большое. Выберите файл меньше 1MB.', 'error');
+            return;
+        }
+        cropImageToSquare(file, (croppedImage) => {
+            if (croppedImage.startsWith('data:image/')) {
+                console.log('Установка profilePreviewImage.src:', croppedImage.substring(0, 50) + '...');
+                profilePreviewImage.src = croppedImage;
+                profileImagePreview.classList.remove('hidden');
             } else {
-                showToast('Пожалуйста, выберите изображение.', 'error');
+                console.error('Невалидный croppedImage:', croppedImage);
+                showToast('Ошибка обработки изображения.', 'error');
             }
         });
+    } else {
+        showToast('Пожалуйста, выберите изображение.', 'error');
+    }
+});
 
-        // Сохранение профиля
-        editProfileForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!validateForm('edit-profile-form')) return;
+       // Сохранение профиля
+editProfileForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!validateForm('edit-profile-form')) return;
 
-            const name = document.getElementById('profile-name').value.trim();
-            const username = document.getElementById('profile-username').value.trim();
-            const bio = document.getElementById('profile-bio').value.trim();
-            let avatar = profile.avatar;
+    const name = document.getElementById('profile-name').value.trim();
+    const bio = document.getElementById('profile-bio').value.trim();
+    const token = localStorage.getItem('token');
 
-            if (profileImage.files[0]) {
-                avatar = profilePreviewImage.src;
+    if (!token) {
+        showToast('Пожалуйста, войдите в аккаунт.', 'error');
+        setTimeout(() => window.location.assign('Index.html'), 2000);
+        return;
+    }
+
+    const profileData = { name, bio };
+    const formData = new FormData();
+    formData.append('profile', JSON.stringify(profileData));
+
+    if (profileImage.files[0]) {
+        if (profileImage.files[0].size > 1 * 1024 * 1024) {
+            showToast('Изображение слишком большое. Выберите файл меньше 1MB.', 'error');
+            return;
+        }
+        formData.append('avatar', profileImage.files[0]); // Новый аватар как файл
+    } else if (profile.avatar && profile.avatar.startsWith('data:image/')) {
+        // Конвертируем текущий base64 в Blob
+        try {
+            const byteString = atob(profile.avatar.split(',')[1]);
+            const mimeString = profile.avatar.split(',')[0].split(':')[1].split(';')[0];
+            const ab = new ArrayBuffer(byteString.length);
+            const ia = new Uint8Array(ab);
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
             }
+            const blob = new Blob([ab], { type: mimeString });
+            formData.append('avatar', blob, 'avatar.jpg');
+        } catch (error) {
+            console.error('Ошибка при конвертации аватара:', error);
+            showToast('Ошибка с текущим аватаром.', 'error');
+            return;
+        }
+    }
 
+    console.log('Отправляемые данные:', {
+        profile: profileData,
+        hasAvatar: profileImage.files[0] || !!profile.avatar
+    });
+
+    try {
+        const response = await fetch('https://platform-g43f.onrender.com/api/users/profile/edit', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            },
+            body: formData
+        });
+
+        if (!response.ok) {
+            let errorMessage = `HTTP error! status: ${response.status}`;
             try {
-                const response = await fetch(`${API_URL}/users/profile`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ email, name, username, bio, avatar }),
-                    credentials: 'include'
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                profile = { ...profile, name, username, bio, avatar };
-                updateProfile();
-                editProfileModal.classList.remove('active');
-                editProfileForm.reset();
-                profileImagePreview.classList.add('hidden');
-                profileImage.value = '';
-                showToast('Профиль успешно обновлен!', 'success');
-            } catch (error) {
-                console.error('Ошибка при обновлении профиля:', error);
-                showToast('Ошибка сервера. Попробуйте позже.', 'error');
+                const errorData = await response.json();
+                errorMessage = errorData.error || errorMessage;
+                console.error('Ошибка API:', errorData);
+            } catch {
+                console.error('Ошибка API (не JSON):', await response.text());
             }
-        });
+            throw new Error(errorMessage);
+        }
 
+        let data;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+            console.log('Ответ API (JSON):', data);
+        } else {
+            const text = await response.text();
+            console.log('Ответ API (текст):', text);
+            // Refetch profile to get updated avatarData
+            const profileResponse = await fetch('https://platform-g43f.onrender.com/api/users/profile', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json'
+                }
+            });
+            if (!profileResponse.ok) {
+                throw new Error(`Failed to fetch profile: ${profileResponse.status}`);
+            }
+            data = await profileResponse.json();
+            console.log('Ответ GET /profile:', data);
+        }
+
+        profile = {
+            ...profile,
+            id: data.id || profile.id,
+            name: data.name || name,
+            email: data.email || profile.email,
+            bio: data.bio || bio,
+            avatar: data.avatarData ? `data:image/jpeg;base64,${data.avatarData}` : profile.avatar || 'https://randomuser.me/api/portraits/lego/1.jpg',
+            followers: data.followers || profile.followers,
+            following: data.following || profile.following,
+            recipesCount: data.recipesCount || profile.recipesCount
+        };
+
+        updateProfile();
+        editProfileModal.classList.remove('active');
+        editProfileForm.reset();
+        profileImagePreview.classList.add('hidden');
+        profileImage.value = '';
+        showToast('Профиль успешно обновлен!', 'success');
+    } catch (error) {
+        console.error('Ошибка при обновлении профиля:', error);
+        showToast(error.message || 'Ошибка сервера. Попробуйте позже.', 'error');
+    }
+});
         // Открытие модального окна подписчиков
         followersBtn.addEventListener('click', () => {
             followersModal.classList.add('active');
@@ -1998,7 +2091,6 @@
             const file = e.dataTransfer.files[0];
             if (file && file.type.startsWith('image/')) {
                 cropImageToSquare(file, (croppedImage) => {
-                    previewImage.src = croppedImage;
                     imagePreview.classList.remove('hidden');
                 });
             } else {
@@ -2011,7 +2103,6 @@
             const file = recipeImage.files[0];
             if (file && file.type.startsWith('image/')) {
                 cropImageToSquare(file, (croppedImage) => {
-                    previewImage.src = croppedImage;
                     imagePreview.classList.remove('hidden');
                 });
             } else {
@@ -2034,7 +2125,6 @@
                 .filter(ing => ing !== '');
             const category = document.getElementById('recipe-category').value;
             const difficulty = document.getElementById('recipe-difficulty').value;
-            const image = previewImage.src;
 
             // Извлечение числовой части из prepTime и cookTime
             const prepTimeValue = parseInt(prepTime) || 0; // Если не число, используем 0
@@ -2332,7 +2422,6 @@
         function resetRecipeForm() {
             recipeForm.reset();
             imagePreview.classList.add('hidden');
-            previewImage.src = '';
             recipeImage.value = '';
             ingredientsContainer.innerHTML = `
                 <div class="ingredient-item">
